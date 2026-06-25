@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import app.config  # noqa: F401 - carga .env al inicio
 from app.database.database import engine, Base
 from app.routers import auth
 
