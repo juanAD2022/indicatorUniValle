@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import { loginService } from '../../services/login/loginService';
 import { Loader2 } from 'lucide-react';
@@ -112,6 +112,15 @@ export const Login = () => {
             )}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/forgot-password"
+            className="text-[#1565C0] hover:underline text-sm font-medium"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
       </div>
     </div>
   );
