@@ -17,4 +17,6 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USER = os.getenv("EMAIL_USER", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+
 RESET_TOKEN_EXPIRE_MINUTES = 15
