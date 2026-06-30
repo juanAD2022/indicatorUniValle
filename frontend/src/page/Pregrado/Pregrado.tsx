@@ -6,10 +6,10 @@ import { GenderPieChart } from '@components/GenderPieChart';
 import { StatusBarChart } from '@components/StatusBarChart';
 import { TrendLineChart } from '@components/TrendLineChart';
 import { ProceedingsTable } from '@components/ProceedingsTable';
-import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData } from '@services/studentIndicator';
+import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData, getComputedStats } from '@services/studentIndicator';
 import type { StudentIndicator } from '@models/StudentIndicator';
-import type { StudentIndicatorStats, GenderStats, TrendDataPoint } from '@services/studentIndicator';
-import { Users, GraduationCap, UserCheck, Heart } from 'lucide-react';
+import type { StudentIndicatorStats, GenderStats, TrendDataPoint, ComputedStats } from '@services/studentIndicator';
+import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass } from 'lucide-react';
 
 export const Pregrado = () => {
   const [data, setData] = useState<StudentIndicator[]>([]);
@@ -27,6 +27,13 @@ export const Pregrado = () => {
     mujeres: 0,
   });
   const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
+  const [computedStats, setComputedStats] = useState<ComputedStats>({
+    tasa_sobrepermanencia: 0,
+    promedio_tesis: 0,
+    tasa_retirados_bra: 0,
+    tasa_graduados_10: 0,
+    tasa_graduados_mas_10: 0,
+  });
 
   const fetchData = useCallback(async () => {
     try {
@@ -67,6 +74,15 @@ export const Pregrado = () => {
     }
   }, []);
 
+  const fetchComputedStats = useCallback(async (periodo: string | null) => {
+    try {
+      const result = await getComputedStats(periodo ?? undefined);
+      setComputedStats(result);
+    } catch {
+      // Silenciar error de computed stats
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
     fetchTrendData();
@@ -75,7 +91,8 @@ export const Pregrado = () => {
   useEffect(() => {
     fetchStats(selectedPeriod);
     fetchGenderStats(selectedPeriod);
-  }, [selectedPeriod, fetchStats, fetchGenderStats]);
+    fetchComputedStats(selectedPeriod);
+  }, [selectedPeriod, fetchStats, fetchGenderStats, fetchComputedStats]);
 
   const handlePeriodChange = (periodo: string | null) => {
     setSelectedPeriod(periodo);
@@ -151,6 +168,54 @@ export const Pregrado = () => {
 
             <div className="mt-6">
               <TrendLineChart data={trendData} />
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
+                Indicadores Calculados
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <IndicatorCard
+                  value={`${computedStats.tasa_sobrepermanencia.toFixed(1)}%`}
+                  label="SOBREPERMANENCIA"
+                  subtitle="Estudiantes con >10 semestres"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<Clock className="h-16 w-16" strokeWidth={1.5} />}
+                />
+
+                <IndicatorCard
+                  value={computedStats.promedio_tesis.toFixed(2)}
+                  label="PROMEDIO TESIS"
+                  subtitle="Nota promedio aprobadas"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<BookOpen className="h-16 w-16" strokeWidth={1.5} />}
+                />
+
+                <IndicatorCard
+                  value={`${computedStats.tasa_retirados_bra.toFixed(1)}%`}
+                  label="RETIRADOS BRA"
+                  subtitle="Tasa de retiro BRA"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<UserMinus className="h-16 w-16" strokeWidth={1.5} />}
+                />
+
+                <IndicatorCard
+                  value={`${computedStats.tasa_graduados_10.toFixed(1)}%`}
+                  label="GRADUADOS"
+                  subtitle="Graduados"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<Timer className="h-16 w-16" strokeWidth={1.5} />}
+                />
+
+                <IndicatorCard
+                  value={`${computedStats.tasa_graduados_mas_10.toFixed(1)}%`}
+                  label="GRADUADOS >10 SEM"
+                  subtitle="Graduados en más de 10"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<Hourglass className="h-16 w-16" strokeWidth={1.5} />}
+                />
+              </div>
             </div>
 
             <div className="mt-6">

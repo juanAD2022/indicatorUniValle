@@ -21,6 +21,14 @@ export interface TrendDataPoint {
   por_amnistia: number;
 }
 
+export interface ComputedStats {
+  tasa_sobrepermanencia: number;
+  promedio_tesis: number;
+  tasa_retirados_bra: number;
+  tasa_graduados_10: number;
+  tasa_graduados_mas_10: number;
+}
+
 export const getStudentIndicators = async (
   filters?: StudentIndicatorFilters
 ): Promise<StudentIndicator[]> => {
@@ -55,5 +63,13 @@ export const getGenderStats = async (periodo?: string): Promise<GenderStats> => 
 
 export const getTrendData = async (): Promise<TrendDataPoint[]> => {
   const response = await api.get<TrendDataPoint[]>('/student-indicators/trend');
+  return response.data;
+};
+
+export const getComputedStats = async (periodo?: string): Promise<ComputedStats> => {
+  const params: Record<string, string> = {};
+  if (periodo) params.periodo = periodo;
+
+  const response = await api.get<ComputedStats>('/student-indicators/computed-stats', { params });
   return response.data;
 };

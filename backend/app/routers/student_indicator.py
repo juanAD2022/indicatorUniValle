@@ -11,6 +11,7 @@ from app.schemas.student_indicator import (
     StudentIndicatorStatsResponse,
     GenderStatsResponse,
     TrendDataPoint,
+    ComputedStatsResponse,
 )
 
 router = APIRouter(prefix="/api/v1/student-indicators", tags=["student-indicators"])
@@ -122,6 +123,52 @@ def list_student_indicators(
         query = query.filter(StudentIndicator.practica_profesional == practica_profesional)
 
     return query.all()
+
+
+@router.get("/computed-stats", response_model=ComputedStatsResponse)
+def get_computed_stats(
+    periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(StudentIndicator)
+    if periodo is not None:
+        query = query.filter(StudentIndicator.periodo == periodo)
+
+    all_students = query.all()
+
+    matriculados_count = sum(1 for s in all_students if s.estado == "MATRICULADO")
+    sobrepermanencia_count = sum(
+        1 for s in all_students if s.semestres_cursados and int(s.semestres_cursados) > 10
+    )
+    tasa_sobrepermanencia = (sobrepermanencia_count / matriculados_count * 100) if matriculados_count > 0 else 0.0
+
+    tesis_aprobadas = [
+        s for s in all_students
+        if s.tesis_estado == "APROBADO" and s.tesis_nota is not None
+    ]
+    suma_notas = sum(float(s.tesis_nota) for s in tesis_aprobadas)
+    total_tesis = len(tesis_aprobadas)
+    promedio_tesis = (suma_notas / total_tesis) if total_tesis > 0 else 0.0
+
+    total_registrados = len(all_students)
+    retirados = sum(1 for s in all_students if s.estado == "RETIRADO")
+    tasa_retirados_bra = (retirados / total_registrados * 100) if total_registrados > 0 else 0.0
+
+    graduados = [s for s in all_students if s.estado == "EGRESADO"]
+    total_graduados = len(graduados)
+    graduados_10 = sum(1 for s in graduados if s.semestres_cursados and int(s.semestres_cursados) == 10)
+    tasa_graduados_10 = (graduados_10 / total_graduados * 100) if total_graduados > 0 else 0.0
+
+    graduados_mas_10 = sum(1 for s in graduados if s.semestres_cursados and int(s.semestres_cursados) > 10)
+    tasa_graduados_mas_10 = (graduados_mas_10 / total_graduados * 100) if total_graduados > 0 else 0.0
+
+    return ComputedStatsResponse(
+        tasa_sobrepermanencia=round(tasa_sobrepermanencia, 1),
+        promedio_tesis=round(promedio_tesis, 2),
+        tasa_retirados_bra=round(tasa_retirados_bra, 1),
+        tasa_graduados_10=round(tasa_graduados_10, 1),
+        tasa_graduados_mas_10=round(tasa_graduados_mas_10, 1),
+    )
 
 
 @router.get("/{indicator_id}", response_model=StudentIndicatorResponse)

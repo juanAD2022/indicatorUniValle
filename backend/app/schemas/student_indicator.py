@@ -44,6 +44,14 @@ class TrendDataPoint(BaseModel):
     por_amnistia: int
 
 
+class ComputedStatsResponse(BaseModel):
+    tasa_sobrepermanencia: float
+    promedio_tesis: float
+    tasa_retirados_bra: float
+    tasa_graduados_10: float
+    tasa_graduados_mas_10: float
+
+
 class StudentIndicatorFilter(BaseModel):
     periodo: Optional[str] = None
     estado: Optional[str] = None
