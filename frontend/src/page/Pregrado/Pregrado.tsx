@@ -5,6 +5,7 @@ import { StudentIndicatorTable } from '@components/StudentIndicatorTable';
 import { GenderPieChart } from '@components/GenderPieChart';
 import { StatusBarChart } from '@components/StatusBarChart';
 import { TrendLineChart } from '@components/TrendLineChart';
+import { ProceedingsTable } from '@components/ProceedingsTable';
 import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData } from '@services/studentIndicator';
 import type { StudentIndicator } from '@models/StudentIndicator';
 import type { StudentIndicatorStats, GenderStats, TrendDataPoint } from '@services/studentIndicator';
@@ -150,6 +151,10 @@ export const Pregrado = () => {
 
             <div className="mt-6">
               <TrendLineChart data={trendData} />
+            </div>
+
+            <div className="mt-6">
+              <ProceedingsTable categoryId={1} />
             </div>
           </>
         )}
