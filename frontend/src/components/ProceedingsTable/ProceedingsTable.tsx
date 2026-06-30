@@ -10,9 +10,12 @@ import {
   Trash2,
   FileText,
   Calendar,
+  Filter,
 } from 'lucide-react';
 import type { ProceedingsTableProps, SortField, SortDirection } from './ProceedingsTable.types';
 import type { Proceeding } from '@models/Proceedings';
+import { UploadModal } from './UploadModal';
+import type { UploadData } from './UploadModal';
 import {
   getProceedings,
   uploadProceeding,
@@ -22,6 +25,9 @@ import {
 
 const ITEMS_PER_PAGE = 10;
 
+const DOCUMENT_TYPES = ['ACTA', 'BOLETIN', 'RESOLUCION', 'INFORME', 'CIRCULAR'];
+const DOCUMENT_CATEGORIES = ['ACADEMICO', 'ADMINISTRATIVO', 'NORMATIVO'];
+
 export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
   const [data, setData] = useState<Proceeding[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,12 +36,14 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [filterDocType, setFilterDocType] = useState('');
+  const [filterDocCategory, setFilterDocCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>('upload_date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
+  const [showModal, setShowModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [observation, setObservation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = useCallback(async () => {
@@ -46,6 +54,8 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
         search: search || undefined,
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
+        document_type: filterDocType || undefined,
+        document_category: filterDocCategory || undefined,
       });
       setData(result);
     } catch {
@@ -53,7 +63,7 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
     } finally {
       setIsLoading(false);
     }
-  }, [categoryId, search, dateFrom, dateTo]);
+  }, [categoryId, search, dateFrom, dateTo, filterDocType, filterDocCategory]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,6 +80,8 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
       result = result.filter(
         (d) =>
           d.original_name.toLowerCase().includes(term) ||
+          d.document_type.toLowerCase().includes(term) ||
+          d.document_category.toLowerCase().includes(term) ||
           (d.observation && d.observation.toLowerCase().includes(term))
       );
     }
@@ -81,8 +93,15 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
       result = result.filter((d) => d.upload_date <= dateTo + 'T23:59:59');
     }
 
+    if (filterDocType) {
+      result = result.filter((d) => d.document_type === filterDocType);
+    }
+    if (filterDocCategory) {
+      result = result.filter((d) => d.document_category === filterDocCategory);
+    }
+
     return result;
-  }, [data, search, dateFrom, dateTo]);
+  }, [data, search, dateFrom, dateTo, filterDocType, filterDocCategory]);
 
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
@@ -124,6 +143,8 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
     setSearch('');
     setDateFrom('');
     setDateTo('');
+    setFilterDocType('');
+    setFilterDocCategory('');
     setCurrentPage(1);
   };
 
@@ -133,25 +154,27 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
   };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    setShowModal(true);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleUpload = async (file: File, data: UploadData) => {
     setIsUploading(true);
     try {
-      await uploadProceeding(file, categoryId, observation || undefined);
-      setObservation('');
+      await uploadProceeding(
+        file,
+        categoryId,
+        data.documentType,
+        data.documentCategory,
+        data.version,
+        data.format,
+        data.observation || undefined
+      );
+      setShowModal(false);
       fetchData();
     } catch {
       alert('Error al subir el archivo. Intente nuevamente.');
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   };
 
@@ -177,9 +200,27 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
     });
+  };
+
+  const getDocTypeBadge = (type: string) => {
+    const colors: Record<string, string> = {
+      ACTA: 'bg-blue-100 text-blue-800',
+      BOLETIN: 'bg-green-100 text-green-800',
+      RESOLUCION: 'bg-purple-100 text-purple-800',
+      INFORME: 'bg-orange-100 text-orange-800',
+      CIRCULAR: 'bg-gray-100 text-gray-800',
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getDocCategoryBadge = (cat: string) => {
+    const colors: Record<string, string> = {
+      ACADEMICO: 'bg-indigo-100 text-indigo-800',
+      ADMINISTRATIVO: 'bg-amber-100 text-amber-800',
+      NORMATIVO: 'bg-teal-100 text-teal-800',
+    };
+    return colors[cat] || 'bg-gray-100 text-gray-800';
   };
 
   if (isLoading) {
@@ -197,9 +238,15 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.doc,.docx,.xlsx,.xls"
-        onChange={handleFileChange}
+        accept=".pdf,.doc,.docx"
         className="hidden"
+      />
+
+      <UploadModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onUpload={handleUpload}
+        isUploading={isUploading}
       />
 
       {/* Header */}
@@ -207,26 +254,15 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <FileText className="h-5 w-5 text-[#CC1C1C]" />
-            Actas
+            Documentos
           </h3>
-          <div className="flex items-center gap-3">
-            {/* Observation input for upload */}
-            <input
-              type="text"
-              placeholder="Observación (opcional)"
-              value={observation}
-              onChange={(e) => setObservation(e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#CC1C1C] focus:border-transparent w-48"
-            />
-            <button
-              onClick={handleUploadClick}
-              disabled={isUploading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#1565C0] hover:bg-[#0d47a1] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Upload className="h-4 w-4" />
-              {isUploading ? 'Subiendo...' : 'Subir acta'}
-            </button>
-          </div>
+          <button
+            onClick={handleUploadClick}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#1565C0] hover:bg-[#0d47a1] rounded-lg transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Subir documento
+          </button>
         </div>
       </div>
 
@@ -247,6 +283,40 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
               className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#CC1C1C] focus:border-transparent"
             />
           </div>
+
+          {/* Document Type Filter */}
+          <select
+            value={filterDocType}
+            onChange={(e) => {
+              setFilterDocType(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#CC1C1C] focus:border-transparent"
+          >
+            <option value="">Tipo documento</option>
+            {DOCUMENT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+
+          {/* Document Category Filter */}
+          <select
+            value={filterDocCategory}
+            onChange={(e) => {
+              setFilterDocCategory(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#CC1C1C] focus:border-transparent"
+          >
+            <option value="">Categoría</option>
+            {DOCUMENT_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
 
           {/* Date From */}
           <div className="relative">
@@ -279,8 +349,9 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
           {/* Clear filters */}
           <button
             onClick={clearFilters}
-            className="px-3 py-2 text-sm text-[#CC1C1C] hover:bg-[#FFF0F0] rounded-lg transition-colors"
+            className="flex items-center gap-1 px-3 py-2 text-sm text-[#CC1C1C] hover:bg-[#FFF0F0] rounded-lg transition-colors"
           >
+            <Filter className="h-4 w-4" />
             Limpiar
           </button>
         </div>
@@ -298,22 +369,42 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
                 <button onClick={() => handleSort('original_name')} className="hover:text-[#CC1C1C]">
-                  Nombre archivo{sortIcon('original_name')}
+                  Documento{sortIcon('original_name')}
                 </button>
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
+                <button onClick={() => handleSort('document_type')} className="hover:text-[#CC1C1C]">
+                  Tipo{sortIcon('document_type')}
+                </button>
+              </th>
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
+                <button onClick={() => handleSort('document_category')} className="hover:text-[#CC1C1C]">
+                  Categoría{sortIcon('document_category')}
+                </button>
+              </th>
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
                 <button onClick={() => handleSort('upload_date')} className="hover:text-[#CC1C1C]">
-                  Fecha carga{sortIcon('upload_date')}
+                  Fecha{sortIcon('upload_date')}
                 </button>
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
+                <button onClick={() => handleSort('version')} className="hover:text-[#CC1C1C]">
+                  Versión{sortIcon('version')}
+                </button>
+              </th>
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
+                <button onClick={() => handleSort('format')} className="hover:text-[#CC1C1C]">
+                  Formato{sortIcon('format')}
+                </button>
+              </th>
+              <th className="px-3 py-3 text-left font-semibold text-gray-700">
                 <button onClick={() => handleSort('observation')} className="hover:text-[#CC1C1C]">
-                  Observación{sortIcon('observation')}
+                  Observaciones{sortIcon('observation')}
                 </button>
               </th>
-              <th className="px-4 py-3 text-center font-semibold text-gray-700 w-32">
+              <th className="px-3 py-3 text-center font-semibold text-gray-700 w-24">
                 Acciones
               </th>
             </tr>
@@ -321,8 +412,8 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
           <tbody>
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-gray-500">
-                  No se encontraron actas con los filtros aplicados.
+                <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                  No se encontraron documentos con los filtros aplicados.
                 </td>
               </tr>
             ) : (
@@ -331,17 +422,33 @@ export const ProceedingsTable = ({ categoryId }: ProceedingsTableProps) => {
                   key={row.id}
                   className="border-b border-gray-100 hover:bg-[#FFF0F0] transition-colors"
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                  <td className="px-3 py-3 font-medium text-gray-900 max-w-[200px] truncate">
                     {row.original_name}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-3 py-3">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getDocTypeBadge(row.document_type)}`}
+                    >
+                      {row.document_type}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getDocCategoryBadge(row.document_category)}`}
+                    >
+                      {row.document_category}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-gray-700 whitespace-nowrap">
                     {formatDate(row.upload_date)}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-3 py-3 text-gray-700">{row.version}</td>
+                  <td className="px-3 py-3 text-gray-700">{row.format}</td>
+                  <td className="px-3 py-3 text-gray-700 max-w-[150px] truncate">
                     {row.observation || '-'}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
+                  <td className="px-3 py-3">
+                    <div className="flex items-center justify-center gap-1">
                       <button
                         onClick={() => handleDownload(row.id)}
                         className="p-1.5 text-[#1565C0] hover:bg-blue-50 rounded-lg transition-colors"

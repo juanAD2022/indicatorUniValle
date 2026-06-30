@@ -10,6 +10,8 @@ export const getProceedings = async (
   if (filters?.search) params.search = filters.search;
   if (filters?.dateFrom) params.date_from = filters.dateFrom;
   if (filters?.dateTo) params.date_to = filters.dateTo;
+  if (filters?.document_type) params.document_type = filters.document_type;
+  if (filters?.document_category) params.document_category = filters.document_category;
 
   const response = await api.get<Proceeding[]>('/proceedings', { params });
   return response.data;
@@ -18,11 +20,19 @@ export const getProceedings = async (
 export const uploadProceeding = async (
   file: File,
   categoryId: number,
+  documentType: string,
+  documentCategory: string,
+  version: string,
+  format: string,
   observation?: string
 ): Promise<Proceeding> => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('category_id', categoryId.toString());
+  formData.append('document_type', documentType);
+  formData.append('document_category', documentCategory);
+  formData.append('version', version);
+  formData.append('format', format);
   if (observation) {
     formData.append('observation', observation);
   }

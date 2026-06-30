@@ -22,6 +22,10 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 def upload_proceeding(
     file: UploadFile = File(...),
     category_id: int = Form(...),
+    document_type: str = Form(...),
+    document_category: str = Form(...),
+    version: str = Form(...),
+    format: str = Form(...),
     observation: str = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -46,8 +50,12 @@ def upload_proceeding(
     proceeding = Proceeding(
         file_path=relative_path,
         original_name=file.filename,
-        category_id=category_id,
+        document_type=document_type,
+        document_category=document_category,
+        version=version,
+        format=format,
         observation=observation,
+        category_id=category_id,
         user_id=current_user.id,
     )
     db.add(proceeding)
