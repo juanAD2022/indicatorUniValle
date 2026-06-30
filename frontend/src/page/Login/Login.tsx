@@ -3,8 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/useAuth';
-import { loginService } from '../../services/login/loginService';
+import { useAuth } from '@context/useAuth';
+import { loginService } from '@services/login/loginService';
 import { Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({

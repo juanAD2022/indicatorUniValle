@@ -94,13 +94,12 @@ ejemplo:
 │   │   ├── NavBar/
 │   │   │   ├── NavBar.tsx
 │   │   │   ├── NavBar.types.ts
-│   │   │   └── index.ts
 │   │   ├── Modal/
 │   │   │   ├── Modal.tsx
-│   │   │   └── index.ts
 │   │   └── AlertBox/
 │   │       ├── AlertBox.tsx
-│   │       └── index.ts
+│   │   
+│   │       index.ts
 │   │
 │   ├── 📁 services/          # Lógica de comunicación con backend
 │   │   ├── axiosConfig.ts

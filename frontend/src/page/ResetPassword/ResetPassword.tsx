@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { resetPassword } from '../../services/password/passwordService';
+import { resetPassword } from '@services/password/passwordService';
 
 const resetSchema = z
   .object({

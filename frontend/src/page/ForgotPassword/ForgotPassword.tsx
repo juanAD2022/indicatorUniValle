@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, Mail } from 'lucide-react';
-import { forgotPassword } from '../../services/password/passwordService';
+import { forgotPassword } from '@services/password/passwordService';
 
 const forgotSchema = z.object({
   email: z.string().email('Ingresá un email válido'),

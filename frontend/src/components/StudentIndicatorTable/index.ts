@@ -1,0 +1,1 @@
+export { StudentIndicatorTable } from './StudentIndicatorTable';
