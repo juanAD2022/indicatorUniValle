@@ -31,6 +31,19 @@ class StudentIndicatorStatsResponse(BaseModel):
     por_amnistia: int
 
 
+class GenderStatsResponse(BaseModel):
+    hombres: int
+    mujeres: int
+
+
+class TrendDataPoint(BaseModel):
+    periodo: str
+    matriculados: int
+    graduados: int
+    reingresados: int
+    por_amnistia: int
+
+
 class StudentIndicatorFilter(BaseModel):
     periodo: Optional[str] = None
     estado: Optional[str] = None

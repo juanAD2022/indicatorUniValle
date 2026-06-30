@@ -2,9 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { NavBar } from '@components/NavBar';
 import { IndicatorCard } from '@components/IndicatorCard';
 import { StudentIndicatorTable } from '@components/StudentIndicatorTable';
-import { getStudentIndicators, getStudentIndicatorStats } from '@services/studentIndicator';
+import { GenderPieChart } from '@components/GenderPieChart';
+import { StatusBarChart } from '@components/StatusBarChart';
+import { TrendLineChart } from '@components/TrendLineChart';
+import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData } from '@services/studentIndicator';
 import type { StudentIndicator } from '@models/StudentIndicator';
-import type { StudentIndicatorStats } from '@services/studentIndicator';
+import type { StudentIndicatorStats, GenderStats, TrendDataPoint } from '@services/studentIndicator';
 import { Users, GraduationCap, UserCheck, Heart } from 'lucide-react';
 
 export const Pregrado = () => {
@@ -18,6 +21,11 @@ export const Pregrado = () => {
     reingresados: 0,
     por_amnistia: 0,
   });
+  const [genderStats, setGenderStats] = useState<GenderStats>({
+    hombres: 0,
+    mujeres: 0,
+  });
+  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -40,13 +48,33 @@ export const Pregrado = () => {
     }
   }, []);
 
+  const fetchGenderStats = useCallback(async (periodo: string | null) => {
+    try {
+      const result = await getGenderStats(periodo ?? undefined);
+      setGenderStats(result);
+    } catch {
+      // Silenciar error de gender stats
+    }
+  }, []);
+
+  const fetchTrendData = useCallback(async () => {
+    try {
+      const result = await getTrendData();
+      setTrendData(result);
+    } catch {
+      // Silenciar error de trend data
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchTrendData();
+  }, [fetchData, fetchTrendData]);
 
   useEffect(() => {
     fetchStats(selectedPeriod);
-  }, [selectedPeriod, fetchStats]);
+    fetchGenderStats(selectedPeriod);
+  }, [selectedPeriod, fetchStats, fetchGenderStats]);
 
   const handlePeriodChange = (periodo: string | null) => {
     setSelectedPeriod(periodo);
@@ -106,6 +134,23 @@ export const Pregrado = () => {
               onImportComplete={fetchData}
               onPeriodChange={handlePeriodChange}
             />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <GenderPieChart
+                hombres={genderStats.hombres}
+                mujeres={genderStats.mujeres}
+              />
+              <StatusBarChart
+                matriculados={stats.matriculados}
+                graduados={stats.graduados}
+                reingresados={stats.reingresados}
+                por_amnistia={stats.por_amnistia}
+              />
+            </div>
+
+            <div className="mt-6">
+              <TrendLineChart data={trendData} />
+            </div>
           </>
         )}
       </main>

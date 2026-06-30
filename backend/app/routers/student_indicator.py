@@ -6,7 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.student_indicator import StudentIndicator
-from app.schemas.student_indicator import StudentIndicatorResponse, StudentIndicatorStatsResponse
+from app.schemas.student_indicator import (
+    StudentIndicatorResponse,
+    StudentIndicatorStatsResponse,
+    GenderStatsResponse,
+    TrendDataPoint,
+)
 
 router = APIRouter(prefix="/api/v1/student-indicators", tags=["student-indicators"])
 
@@ -29,6 +34,54 @@ def get_student_indicator_stats(
         reingresados=results.get("REINGRESADO", 0),
         por_amnistia=results.get("AMNISTIA", 0),
     )
+
+
+@router.get("/gender-stats", response_model=GenderStatsResponse)
+def get_gender_stats(
+    periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(StudentIndicator.sexo, func.count(StudentIndicator.id))
+
+    if periodo is not None:
+        query = query.filter(StudentIndicator.periodo == periodo)
+
+    results = dict(query.group_by(StudentIndicator.sexo).all())
+
+    return GenderStatsResponse(
+        hombres=results.get("M", 0),
+        mujeres=results.get("F", 0),
+    )
+
+
+@router.get("/trend", response_model=list[TrendDataPoint])
+def get_trend_data(db: Session = Depends(get_db)):
+    periodos = (
+        db.query(StudentIndicator.periodo)
+        .distinct()
+        .order_by(StudentIndicator.periodo.desc())
+        .limit(10)
+        .all()
+    )
+    periodos = [p[0] for p in reversed(periodos)]
+
+    results = []
+    for periodo in periodos:
+        counts = dict(
+            db.query(StudentIndicator.estado, func.count(StudentIndicator.id))
+            .filter(StudentIndicator.periodo == periodo)
+            .group_by(StudentIndicator.estado)
+            .all()
+        )
+        results.append(TrendDataPoint(
+            periodo=periodo,
+            matriculados=counts.get("MATRICULADO", 0),
+            graduados=counts.get("EGRESADO", 0),
+            reingresados=counts.get("REINGRESADO", 0),
+            por_amnistia=counts.get("AMNISTIA", 0),
+        ))
+
+    return results
 
 
 @router.get("", response_model=list[StudentIndicatorResponse])

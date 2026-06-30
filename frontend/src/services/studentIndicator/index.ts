@@ -1,2 +1,2 @@
-export { getStudentIndicators, getStudentIndicatorStats } from './studentIndicatorService';
-export type { StudentIndicatorStats } from './studentIndicatorService';
+export { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData } from './studentIndicatorService';
+export type { StudentIndicatorStats, GenderStats, TrendDataPoint } from './studentIndicatorService';

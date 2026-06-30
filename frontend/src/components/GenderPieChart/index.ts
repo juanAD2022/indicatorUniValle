@@ -1,0 +1,1 @@
+export { GenderPieChart } from './GenderPieChart';
