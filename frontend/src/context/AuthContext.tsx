@@ -3,12 +3,14 @@ import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
     }
+    setIsHydrated(true);
   }, []);
 
   const login = useCallback((newToken: string) => {
@@ -26,6 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         token,
         isAuthenticated: !!token,
+        isHydrated,
         login,
         logout,
       }}

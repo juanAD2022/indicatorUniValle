@@ -21,12 +21,14 @@ const ESTRATO_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 interface StudentIndicatorTableExtendedProps extends StudentIndicatorTableProps {
   onImportComplete?: () => void;
+  onPeriodChange?: (periodo: string | null) => void;
 }
 
 export const StudentIndicatorTable = ({
   data,
   isLoading,
   onImportComplete,
+  onPeriodChange,
 }: StudentIndicatorTableExtendedProps) => {
   const [search, setSearch] = useState('');
   const [filterPeriodo, setFilterPeriodo] = useState('');
@@ -199,6 +201,7 @@ export const StudentIndicatorTable = ({
             onChange={(e) => {
               setFilterPeriodo(e.target.value);
               setCurrentPage(1);
+              onPeriodChange?.(e.target.value || null);
             }}
             className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#CC1C1C] focus:border-transparent"
           >

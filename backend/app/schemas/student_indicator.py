@@ -24,6 +24,13 @@ class StudentIndicatorResponse(BaseModel):
         from_attributes = True
 
 
+class StudentIndicatorStatsResponse(BaseModel):
+    matriculados: int
+    graduados: int
+    reingresados: int
+    por_amnistia: int
+
+
 class StudentIndicatorFilter(BaseModel):
     periodo: Optional[str] = None
     estado: Optional[str] = None

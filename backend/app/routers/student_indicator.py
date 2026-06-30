@@ -1,13 +1,34 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.student_indicator import StudentIndicator
-from app.schemas.student_indicator import StudentIndicatorResponse
+from app.schemas.student_indicator import StudentIndicatorResponse, StudentIndicatorStatsResponse
 
 router = APIRouter(prefix="/api/v1/student-indicators", tags=["student-indicators"])
+
+
+@router.get("/stats", response_model=StudentIndicatorStatsResponse)
+def get_student_indicator_stats(
+    periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(StudentIndicator.estado, func.count(StudentIndicator.id))
+
+    if periodo is not None:
+        query = query.filter(StudentIndicator.periodo == periodo)
+
+    results = dict(query.group_by(StudentIndicator.estado).all())
+
+    return StudentIndicatorStatsResponse(
+        matriculados=results.get("MATRICULADO", 0),
+        graduados=results.get("EGRESADO", 0),
+        reingresados=results.get("REINGRESADO", 0),
+        por_amnistia=results.get("AMNISTIA", 0),
+    )
 
 
 @router.get("", response_model=list[StudentIndicatorResponse])

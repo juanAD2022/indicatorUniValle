@@ -1,13 +1,23 @@
 import { useEffect, useState, useCallback } from 'react';
 import { NavBar } from '@components/NavBar';
+import { IndicatorCard } from '@components/IndicatorCard';
 import { StudentIndicatorTable } from '@components/StudentIndicatorTable';
-import { getStudentIndicators } from '@services/studentIndicator';
+import { getStudentIndicators, getStudentIndicatorStats } from '@services/studentIndicator';
 import type { StudentIndicator } from '@models/StudentIndicator';
+import type { StudentIndicatorStats } from '@services/studentIndicator';
+import { Users, GraduationCap, UserCheck, Heart } from 'lucide-react';
 
 export const Pregrado = () => {
   const [data, setData] = useState<StudentIndicator[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const [stats, setStats] = useState<StudentIndicatorStats>({
+    matriculados: 0,
+    graduados: 0,
+    reingresados: 0,
+    por_amnistia: 0,
+  });
 
   const fetchData = useCallback(async () => {
     try {
@@ -21,9 +31,26 @@ export const Pregrado = () => {
     }
   }, []);
 
+  const fetchStats = useCallback(async (periodo: string | null) => {
+    try {
+      const result = await getStudentIndicatorStats(periodo ?? undefined);
+      setStats(result);
+    } catch {
+      // Silenciar error de stats
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    fetchStats(selectedPeriod);
+  }, [selectedPeriod, fetchStats]);
+
+  const handlePeriodChange = (periodo: string | null) => {
+    setSelectedPeriod(periodo);
+  };
 
   return (
     <div className="min-h-screen bg-[#E8E8F0]">
@@ -41,8 +68,45 @@ export const Pregrado = () => {
             <div className="text-center text-red-600">{error}</div>
           </div>
         ) : (
-          <StudentIndicatorTable data={data} isLoading={isLoading} onImportComplete={fetchData} />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <IndicatorCard
+                value={stats.matriculados}
+                label="MATRICULADOS"
+                subtitle="Estudiantes activos"
+                description="PERIODO ACTUAL"
+                icon={<Users className="h-16 w-16" strokeWidth={1.5} />}
+              />
+              <IndicatorCard
+                value={stats.graduados}
+                label="GRADUADOS"
+                subtitle="Egresados"
+                description="PERIODO ACTUAL"
+                icon={<GraduationCap className="h-16 w-16" strokeWidth={1.5} />}
+              />
+              <IndicatorCard
+                value={stats.reingresados}
+                label="REINGRESADOS"
+                subtitle="Volvieron a matricularse"
+                description="PERIODO ACTUAL"
+                icon={<UserCheck className="h-16 w-16" strokeWidth={1.5} />}
+              />
+              <IndicatorCard
+                value={stats.por_amnistia}
+                label="POR AMNISTIA"
+                subtitle="Amnistía académica"
+                description="PERIODO ACTUAL"
+                icon={<Heart className="h-16 w-16" strokeWidth={1.5} />}
+              />
+            </div>
 
+            <StudentIndicatorTable
+              data={data}
+              isLoading={isLoading}
+              onImportComplete={fetchData}
+              onPeriodChange={handlePeriodChange}
+            />
+          </>
         )}
       </main>
     </div>
