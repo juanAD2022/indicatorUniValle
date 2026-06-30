@@ -1,0 +1,452 @@
+---
+title: "Informe de Indicadores Estudiantiles - Pregrado"
+subtitle: "Universidad del Valle"
+author: "Generado automáticamente con R"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    code_folding: hide
+    fig_width: 10
+    fig_height: 6
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+```
+
+# 1. Carga de datos
+
+```{r carga-datos}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(scales)
+library(lubridate)
+
+csv_paths <- c(
+  "data/student_indicators.csv",
+  "r_reports/data/student_indicators.csv",
+  file.path(getwd(), "data", "student_indicators.csv"),
+  file.path(getwd(), "r_reports", "data", "student_indicators.csv")
+)
+
+csv_path <- NULL
+for (p in csv_paths) {
+  if (file.exists(p)) {
+    csv_path <- p
+    break
+  }
+}
+if (is.null(csv_path)) {
+  stop("No se encontró student_indicators.csv")
+}
+
+datos <- read.csv(csv_path, stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+
+cat("Registros cargados:", nrow(datos), "\n")
+cat("Variables:", ncol(datos), "\n")
+cat("Períodos:", length(unique(datos$periodo)), "\n")
+cat("Rango de períodos:", min(datos$periodo), "-", max(datos$periodo), "\n")
+```
+
+```{r vista-previa}
+head(datos, 10) %>%
+  knitr::kable(
+    caption = "Vista previa de los datos",
+    format = "html",
+    row.names = FALSE
+  )
+```
+
+# 2. Resumen ejecutivo
+
+```{r resumen-ejecutivo}
+resumen <- datos %>%
+  group_by(estado) %>%
+  summarise(
+    cantidad = n(),
+    pct = round(n() / nrow(datos) * 100, 1),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(cantidad))
+
+resumen %>%
+  knitr::kable(
+    caption = "Distribución por estado académico",
+    format = "html",
+    col.names = c("Estado", "Cantidad", "Porcentaje (%)")
+  )
+```
+
+```{r grafico-resumen, fig.cap="Distribución de estudiantes por estado académico"}
+ggplot(resumen, aes(x = reorder(estado, cantidad), y = cantidad, fill = estado)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  geom_text(aes(label = paste0(cantidad, " (", pct, "%)")), hjust = -0.1, size = 3.5) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = NULL, y = "Cantidad de estudiantes", title = "Distribución por Estado Académico") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+# 3. Evolución temporal por período
+
+```{r evolucion-temporal}
+evolucion <- datos %>%
+  group_by(periodo, estado) %>%
+  summarise(cantidad = n(), .groups = "drop") %>%
+  arrange(periodo)
+
+periodos_orden <- sort(unique(datos$periodo))
+evolucion$periodo <- factor(evolucion$periodo, levels = periodos_orden)
+
+ggplot(evolucion, aes(x = periodo, y = cantidad, color = estado, group = estado)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    x = "Período",
+    y = "Cantidad",
+    title = "Evolución de Estudiantes por Período y Estado",
+    color = "Estado"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r barras-apiladas, fig.cap="Barras apiladas por período"}
+ggplot(evolucion, aes(x = periodo, y = cantidad, fill = estado)) +
+  geom_bar(stat = "identity", position = "stack", width = 0.7) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    x = "Período",
+    y = "Cantidad",
+    title = "Composición por Estado Académico en Cada Período",
+    fill = "Estado"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# 4. Distribución por sexo
+
+```{r distribucion-sexo}
+sexo_dist <- datos %>%
+  group_by(sexo) %>%
+  summarise(
+    cantidad = n(),
+    pct = round(n() / nrow(datos) * 100, 1),
+    .groups = "drop"
+  )
+
+sexo_dist %>%
+  knitr::kable(
+    caption = "Distribución por sexo",
+    col.names = c("Sexo", "Cantidad", "Porcentaje (%)")
+  )
+```
+
+```{r grafico-sexo, fig.cap="Distribución por sexo"}
+ggplot(sexo_dist, aes(x = "", y = cantidad, fill = sexo)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  scale_fill_manual(values = c("F" = "#CC1C1C", "M" = "#1565C0"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
+  labs(title = "Distribución por Sexo", fill = "Sexo") +
+  theme_void() +
+  geom_text(aes(label = paste0(sexo, "\n", cantidad, " (", pct, "%)")),
+            position = position_stack(vjust = 0.5), color = "white", fontface = "bold")
+```
+
+```{r sexo-estado, fig.cap="Distribución de sexo por estado académico"}
+sexo_estado <- datos %>%
+  group_by(estado, sexo) %>%
+  summarise(cantidad = n(), .groups = "drop")
+
+ggplot(sexo_estado, aes(x = estado, y = cantidad, fill = sexo)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  scale_fill_manual(values = c("F" = "#CC1C1C", "M" = "#1565C0"), labels = c("F" = "Mujeres", "M" = "Hombres")) +
+  labs(x = "Estado Académico", y = "Cantidad", title = "Distribución de Sexo por Estado", fill = "Sexo") +
+  theme_minimal()
+```
+
+```{r test-chi-sexo}
+tabla_sexo <- table(datos$sexo, datos$estado)
+chi_test <- chisq.test(tabla_sexo)
+cat("Test Chi-cuadrado de independencia (sexo vs estado):\n")
+cat("Chi-cuadrado:", round(chi_test$statistic, 2), "\n")
+cat("p-value:", format.pval(chi_test$p.value, digits = 4), "\n")
+cat("Conclusión:", ifelse(chi_test$p.value < 0.05,
+  "Existe una asociación significativa entre sexo y estado (p < 0.05).",
+  "No hay evidencia de asociación entre sexo y estado (p >= 0.05)."), "\n")
+```
+
+# 5. Análisis por estrato socioeconómico
+
+```{r estrato-resumen}
+estrato_res <- datos %>%
+  group_by(estrato) %>%
+  summarise(
+    cantidad = n(),
+    promedio_promedio = round(mean(promedio_acumulado, na.rm = TRUE), 2),
+    promedio_pensum = round(mean(pensum_aprobado_pct, na.rm = TRUE), 2),
+    .groups = "drop"
+  )
+
+estrato_res %>%
+  knitr::kable(
+    caption = "Resumen por estrato socioeconómico",
+    col.names = c("Estrato", "Cantidad", "Promedio Acumulado", "Pensum Aprobado (%)")
+  )
+```
+
+```{r boxplot-estrato, fig.cap="Boxplot de promedio acumulado por estrato"}
+ggplot(datos, aes(x = factor(estrato), y = promedio_acumulado, fill = factor(estrato))) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  labs(
+    x = "Estrato Socioeconómico",
+    y = "Promedio Acumulado",
+    title = "Distribución del Promedio por Estrato",
+    fill = "Estrato"
+  ) +
+  theme_minimal()
+```
+
+```{r promedio-estrato, fig.cap="Promedio acumulado promedio por estrato"}
+ggplot(estrato_res, aes(x = factor(estrato), y = promedio_promedio, fill = factor(estrato))) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = promedio_promedio), vjust = -0.5, size = 3.5) +
+  scale_fill_brewer(palette = "RdYlBu") +
+  labs(
+    x = "Estrato Socioeconómico",
+    y = "Promedio Acumulado Promedio",
+    title = "Promedio por Estrato Socioeconómico",
+    fill = "Estrato"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+# 6. Correlaciones
+
+```{r correlaciones}
+vars_numericas <- datos %>%
+  transmute(
+    bra = as.numeric(bra),
+    pensum_aprobado_pct = as.numeric(pensum_aprobado_pct),
+    promedio_acumulado = as.numeric(promedio_acumulado),
+    estrato = as.numeric(estrato)
+  )
+
+vars_numericas <- vars_numericas[complete.cases(vars_numericas), ]
+
+if (nrow(vars_numericas) >= 3) {
+  cor_matrix <- cor(vars_numericas)
+  
+  cat("Matriz de correlaciones:\n")
+  print(round(cor_matrix, 3))
+} else {
+  cat("Datos insuficientes para calcular correlaciones.\n")
+  cor_matrix <- NULL
+}
+```
+
+```{r corrplot-visual, fig.cap="Mapa de correlaciones entre variables numéricas"}
+if (!is.null(cor_matrix) && nrow(cor_matrix) >= 2) {
+  corrplot(
+    cor_matrix,
+    method = "color",
+    type = "upper",
+    order = "hclust",
+    addCoef.col = "black",
+    tl.col = "black",
+    tl.srt = 45,
+    number.cex = 0.8,
+    col = colorRampPalette(c("#CC1C1C", "white", "#1565C0"))(200),
+    title = "Correlaciones entre Variables Numéricas",
+    mar = c(0, 0, 2, 0)
+  )
+} else {
+  cat("No hay suficientes datos para generar el corrplot.\n")
+}
+```
+
+```{r test-correlacion}
+cor_test_pt <- cor.test(datos$pensum_aprobado_pct, datos$promedio_acumulado)
+cat("Correlación entre pensum aprobado y promedio acumulado:\n")
+cat("Correlación:", round(cor_test_pt$estimate, 3), "\n")
+cat("p-value:", format.pval(cor_test_pt$p.value, digits = 4), "\n")
+cat("Conclusión:", ifelse(abs(cor_test_pt$estimate) > 0.3 && cor_test_pt$p.value < 0.05,
+  "Correlación moderada a fuerte y significativa.",
+  "Correlación débil o no significativa."), "\n")
+```
+
+# 7. Tasa de graduación
+
+```{r tasa-graduacion}
+tasa_grad <- datos %>%
+  group_by(periodo) %>%
+  summarise(
+    total = n(),
+    graduados = sum(estado %in% c("EGRESADO", "GRADUADO"), na.rm = TRUE),
+    tasa_graduacion = round(graduados / total * 100, 1),
+    .groups = "drop"
+  )
+
+tasa_grad$periodo <- factor(tasa_grad$periodo, levels = periodos_orden)
+
+tasa_grad %>%
+  knitr::kable(
+    caption = "Tasa de graduación por período",
+    col.names = c("Período", "Total", "Graduados", "Tasa (%)")
+  )
+```
+
+```{r grafico-tasa, fig.cap="Evolución de la tasa de graduación"}
+ggplot(tasa_grad, aes(x = periodo, y = tasa_graduacion, group = 1)) +
+  geom_line(color = "#CC1C1C", linewidth = 1.2) +
+  geom_point(color = "#CC1C1C", size = 3) +
+  geom_text(aes(label = paste0(tasa_graduacion, "%")), vjust = -1, size = 3.5) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    x = "Período",
+    y = "Tasa de Graduación (%)",
+    title = "Evolución de la Tasa de Graduación por Período"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# 8. Análisis de tesis
+
+```{r tesis-estado}
+tesis_dist <- datos %>%
+  group_by(tesis_estado) %>%
+  summarise(
+    cantidad = n(),
+    pct = round(n() / nrow(datos) * 100, 1),
+    promedio_nota = round(mean(tesis_nota, na.rm = TRUE), 2),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(cantidad))
+
+tesis_dist %>%
+  knitr::kable(
+    caption = "Distribución por estado de tesis",
+    col.names = c("Estado Tesis", "Cantidad", "Porcentaje (%)", "Promedio Nota")
+  )
+```
+
+```{r grafico-tesis, fig.cap="Distribución de estados de tesis"}
+ggplot(tesis_dist, aes(x = reorder(tesis_estado, cantidad), y = cantidad, fill = tesis_estado)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  geom_text(aes(label = cantidad), hjust = -0.2, size = 3.5) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set3") +
+  labs(x = NULL, y = "Cantidad", title = "Estados de Tesis") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r tesis-promedio, fig.cap="Promedio acumulado por estado de tesis"}
+datos_tesis <- datos %>% filter(!is.na(tesis_nota) & tesis_nota > 0)
+
+if (nrow(datos_tesis) > 0) {
+  ggplot(datos_tesis, aes(x = tesis_estado, y = tesis_nota, fill = tesis_estado)) +
+    geom_boxplot(alpha = 0.7) +
+    labs(
+      x = "Estado de Tesis",
+      y = "Nota de Tesis",
+      title = "Distribución de Notas de Tesis por Estado"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "none")
+} else {
+  cat("No hay datos de notas de tesis disponibles para graficar.\n")
+}
+```
+
+# 9. Acompañamiento BRA y Práctica Profesional
+
+```{r bra-acompanamiento}
+bra_res <- datos %>%
+  summarise(
+    con_bra = sum(acompanamiento_bra, na.rm = TRUE),
+    sin_bra = sum(!acompanamiento_bra, na.rm = TRUE),
+    con_practica = sum(practica_profesional, na.rm = TRUE),
+    sin_practica = sum(!practica_profesional, na.rm = TRUE)
+  )
+
+cat("Acompañamiento BRA:\n")
+cat("  Con acompañamiento:", bra_res$con_bra, "\n")
+cat("  Sin acompañamiento:", bra_res$sin_bra, "\n\n")
+cat("Práctica Profesional:\n")
+cat("  Con práctica:", bra_res$con_practica, "\n")
+cat("  Sin práctica:", bra_res$sin_practica, "\n")
+```
+
+```{r bra-promedio, fig.cap="Impacto del acompañamiento BRA en el promedio"}
+datos_bra <- datos %>%
+  mutate(
+    bra_label = ifelse(acompanamiento_bra, "Con BRA", "Sin BRA"),
+    practica_label = ifelse(practica_profesional, "Con Práctica", "Sin Práctica")
+  )
+
+bra_summary <- datos_bra %>%
+  group_by(bra_label) %>%
+  summarise(
+    promedio = round(mean(promedio_acumulado, na.rm = TRUE), 2),
+    cantidad = n(),
+    .groups = "drop"
+  )
+
+ggplot(bra_summary, aes(x = bra_label, y = promedio, fill = bra_label)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  geom_text(aes(label = paste0(promedio, "\n(n=", cantidad, ")")), vjust = -0.5, size = 3.5) +
+  scale_fill_manual(values = c("Con BRA" = "#2E86C1", "Sin BRA" = "#AEB6BF")) +
+  labs(x = NULL, y = "Promedio Acumulado", title = "Promedio por Acompañamiento BRA") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+# 10. Resumen y conclusiones
+
+```{r conclusiones}
+cat("=" |> rep(60) |> paste(collapse = ""), "\n")
+cat("RESUMEN DEL INFORME\n")
+cat("=" |> rep(60) |> paste(collapse = ""), "\n\n")
+cat("Total de registros:", nrow(datos), "\n")
+cat("Períodos analizados:", length(unique(datos$periodo)), "\n")
+cat("Rango:", min(datos$periodo), "-", max(datos$periodo), "\n\n")
+
+cat("Distribución por estado:\n")
+resumen %>%
+  mutate(linea = paste0("  ", estado, ": ", cantidad, " (", pct, "%)")) %>%
+  pull(linea) %>%
+  cat(sep = "\n")
+
+cat("\nDistribución por sexo:\n")
+sexo_dist %>%
+  mutate(linea = paste0("  ", sexo, ": ", cantidad, " (", pct, "%)")) %>%
+  pull(linea) %>%
+  cat(sep = "\n")
+
+cat("\nPromedio general acumulado:", round(mean(datos$promedio_acumulado, na.rm = TRUE), 2), "\n")
+cat("Promedio pensum aprobado:", round(mean(datos$pensum_aprobado_pct, na.rm = TRUE), 2), "%\n")
+
+cat("\nTest Chi-cuadrado (sexo vs estado): p =", format.pval(chi_test$p.value, digits = 4), "\n")
+cat("Correlación pensum-promedio:", round(cor_test_pt$estimate, 3), "\n")
+cat("\n", "=" |> rep(60) |> paste(collapse = ""), "\n")
+```
+
+---
+
+*Informe generado automáticamente. Los datos fueron exportados desde la base de datos MySQL del sistema de indicadores.*
