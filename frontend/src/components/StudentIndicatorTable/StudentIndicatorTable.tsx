@@ -13,7 +13,7 @@ import { uploadPreview, confirmImport } from '@services/studentIndicator/importS
 import type { ImportPreview } from '@services/studentIndicator/importService';
 import { ImportPreviewModal } from '@components/ImportPreviewModal';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 15;
 
 const ESTADO_OPTIONS = ['MATRICULADO', 'EGRESADO', 'RETIRADO', 'APLAZADO'];
 const SEXO_OPTIONS = ['M', 'F'];
