@@ -8,5 +8,5 @@ export interface StudentIndicatorTableProps {
   onPeriodChange?: (periodo: string | null) => void;
 }
 
-export type SortField = 'periodo' | 'estado' | 'sexo' | 'estrato' | 'promedio_acumulado';
+export type SortField = 'periodo' | 'estado' | 'vinculacion' | 'sexo' | 'estrato' | 'promedio_acumulado';
 export type SortDirection = 'asc' | 'desc';

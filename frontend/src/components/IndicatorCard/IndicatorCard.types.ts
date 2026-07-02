@@ -6,5 +6,6 @@ export interface IndicatorCardProps {
   subtitle: string;
   description?: string;
   icon?: ReactNode;
+  bgColor?: string;
   className?: string;
 }

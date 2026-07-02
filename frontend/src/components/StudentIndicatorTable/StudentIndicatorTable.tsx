@@ -15,7 +15,7 @@ import { ImportPreviewModal } from '@components/ImportPreviewModal';
 
 const ITEMS_PER_PAGE = 15;
 
-const ESTADO_OPTIONS = ['MATRICULADO', 'EGRESADO', 'RETIRADO', 'APLAZADO'];
+const ESTADO_OPTIONS = ['MATRICULADO', 'GRADUADO', 'RETIRADO', 'DESERTOR'];
 const SEXO_OPTIONS = ['M', 'F'];
 const ESTRATO_OPTIONS = [1, 2, 3, 4, 5, 6];
 
@@ -323,6 +323,11 @@ export const StudentIndicatorTable = ({
                 </button>
               </th>
               <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                <button onClick={() => handleSort('vinculacion')} className="hover:text-[#CC1C1C]">
+                  Vinculación{sortIcon('vinculacion')}
+                </button>
+              </th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700">
                 <button onClick={() => handleSort('sexo')} className="hover:text-[#CC1C1C]">
                   Sexo{sortIcon('sexo')}
                 </button>
@@ -349,7 +354,7 @@ export const StudentIndicatorTable = ({
           <tbody>
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
+                <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
                   No se encontraron registros con los filtros aplicados.
                 </td>
               </tr>
@@ -363,6 +368,11 @@ export const StudentIndicatorTable = ({
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E8E8F0] text-gray-700">
                       {row.estado}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E8E8F0] text-gray-700">
+                      {row.vinculacion}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-700">

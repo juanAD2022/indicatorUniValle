@@ -23,21 +23,32 @@ def get_student_indicator_stats(
     tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
     db: Session = Depends(get_db),
 ):
-    query = db.query(StudentIndicator.estado, func.count(StudentIndicator.id))
-
+    base_filter = []
     if periodo is not None:
-        query = query.filter(StudentIndicator.periodo == periodo)
+        base_filter.append(StudentIndicator.periodo == periodo)
     if tipo_programa is not None:
-        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
+        base_filter.append(StudentIndicator.tipo_programa == tipo_programa)
 
-    results = dict(query.group_by(StudentIndicator.estado).all())
+    estado_results = dict(
+        db.query(StudentIndicator.estado, func.count(StudentIndicator.id))
+        .filter(*base_filter)
+        .group_by(StudentIndicator.estado)
+        .all()
+    )
+
+    vinculacion_results = dict(
+        db.query(StudentIndicator.vinculacion, func.count(StudentIndicator.id))
+        .filter(*base_filter)
+        .group_by(StudentIndicator.vinculacion)
+        .all()
+    )
 
     return StudentIndicatorStatsResponse(
-        matriculados=results.get("MATRICULADO", 0),
-        graduados=results.get("EGRESADO", 0),
-        reingresados=results.get("REINGRESADO", 0),
-        por_amnistia=results.get("AMNISTIA", 0),
-        desertores=results.get("RETIRADO", 0),
+        matriculados=estado_results.get("MATRICULADO", 0),
+        graduados=estado_results.get("GRADUADO", 0),
+        reingresados=vinculacion_results.get("REINGRESO", 0),
+        por_amnistia=vinculacion_results.get("AMNISTIA", 0),
+        desertores=estado_results.get("RETIRADO", 0) + estado_results.get("DESERTOR", 0),
     )
 
 

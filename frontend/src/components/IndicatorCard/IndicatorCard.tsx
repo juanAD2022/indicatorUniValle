@@ -7,11 +7,13 @@ export const IndicatorCard = ({
   subtitle,
   description,
   icon,
+  bgColor = '#CC1C1C',
   className = '',
 }: IndicatorCardProps) => {
   return (
     <div
-      className={`bg-[#CC1C1C] rounded-2xl p-6 flex items-center gap-4 shadow-sm ${className}`}
+      className={`rounded-2xl p-6 flex items-center gap-4 shadow-sm ${className}`}
+      style={{ backgroundColor: bgColor }}
     >
       <div className="text-5xl font-bold text-white leading-none">{value}</div>
 

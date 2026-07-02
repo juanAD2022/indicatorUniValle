@@ -119,6 +119,7 @@ export const Pregrado = () => {
               label="MATRICULADOS"
               subtitle="Estudiantes activos"
               description="PERIODO ACTUAL"
+              bgColor="#CC1C1C"
               icon={<Users className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -126,6 +127,7 @@ export const Pregrado = () => {
               label="GRADUADOS"
               subtitle="Egresados"
               description="PERIODO ACTUAL"
+              bgColor="#1565C0"
               icon={<GraduationCap className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -133,6 +135,7 @@ export const Pregrado = () => {
               label="REINGRESADOS"
               subtitle="Volvieron a matricularse"
               description="PERIODO ACTUAL"
+              bgColor="#4CAF50"
               icon={<UserCheck className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -140,6 +143,7 @@ export const Pregrado = () => {
               label="POR AMNISTIA"
               subtitle="Amnistía académica"
               description="PERIODO ACTUAL"
+              bgColor="#FF9800"
               icon={<Heart className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -147,6 +151,7 @@ export const Pregrado = () => {
               label="DESERTORES"
               subtitle="Estudiantes retirados"
               description="PERIODO ACTUAL"
+              bgColor="#B71C1C"
               icon={<UserX className="h-16 w-16" strokeWidth={1.5} />}
             />
           </div>

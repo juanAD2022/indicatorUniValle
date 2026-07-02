@@ -119,6 +119,7 @@ export const Posgrado = () => {
               label="MATRICULADOS"
               subtitle="Estudiantes activos"
               description="PERIODO ACTUAL"
+              bgColor="#CC1C1C"
               icon={<Users className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -126,6 +127,7 @@ export const Posgrado = () => {
               label="GRADUADOS"
               subtitle="Egresados"
               description="PERIODO ACTUAL"
+              bgColor="#1565C0"
               icon={<GraduationCap className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -133,6 +135,7 @@ export const Posgrado = () => {
               label="REINGRESADOS"
               subtitle="Volvieron a matricularse"
               description="PERIODO ACTUAL"
+              bgColor="#4CAF50"
               icon={<UserCheck className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
@@ -140,6 +143,7 @@ export const Posgrado = () => {
               label="POR AMNISTIA"
               subtitle="Amnistía académica"
               description="PERIODO ACTUAL"
+              bgColor="#FF9800"
               icon={<Heart className="h-16 w-16" strokeWidth={1.5} />}
             />
           </div>
