@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import type { GenderPieChartProps } from './GenderPieChart.types';
 
 const COLORS = {
@@ -91,30 +91,32 @@ export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieCh
   return (
     <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
       <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Distribución por Género</h3>
-      <PieChart width={400} height={300}>
-        <Pie
-          data={data}
-          cx="40%"
-          cy="50%"
-          outerRadius={100}
-          dataKey="value"
-          label={renderCustomLabel}
-          labelLine={false}
-        >
-          {data.map((entry) => (
-            <Cell
-              key={entry.name}
-              fill={COLORS[entry.name as keyof typeof COLORS]}
-            />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value: number, name: string) => [
-            `${value} (${total > 0 ? ((value / total) * 100).toFixed(1) : 0}%)`,
-            name,
-          ]}
-        />
-      </PieChart>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="40%"
+            cy="50%"
+            outerRadius={100}
+            dataKey="value"
+            label={renderCustomLabel}
+            labelLine={false}
+          >
+            {data.map((entry) => (
+              <Cell
+                key={entry.name}
+                fill={COLORS[entry.name as keyof typeof COLORS]}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            formatter={(value: number, name: string) => [
+              `${value} (${total > 0 ? ((value / total) * 100).toFixed(1) : 0}%)`,
+              name,
+            ]}
+          />
+        </PieChart>
+      </ResponsiveContainer>
     </div>
   );
 };

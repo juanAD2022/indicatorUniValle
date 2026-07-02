@@ -165,7 +165,7 @@ export const Pregrado = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <GenderPieChart
               hombres={genderStats.hombres}
               mujeres={genderStats.mujeres}
@@ -176,9 +176,6 @@ export const Pregrado = () => {
               reingresados={stats.reingresados}
               por_amnistia={stats.por_amnistia}
             />
-          </div>
-
-          <div className="mt-6">
             <TrendLineChart data={trendData} />
           </div>
 

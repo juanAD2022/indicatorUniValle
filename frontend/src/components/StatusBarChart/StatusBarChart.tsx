@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList, ResponsiveContainer } from 'recharts';
 import type { StatusBarChartProps } from './StatusBarChart.types';
 
 const COLORS = ['#CC1C1C', '#1565C0', '#4CAF50', '#FF9800'];
@@ -69,22 +69,22 @@ export const StatusBarChart = ({
     <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
       <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Estudiantes por Estado</h3>
       <CustomLegend />
-      <BarChart
-        width={400}
-        height={300}
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
-        <XAxis dataKey="label" fontSize={12} tickLine={false} />
-        <YAxis fontSize={12} />
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
-          {data.map((_, index) => (
-            <Cell key={index} fill={COLORS[index]} />
-          ))}
-          <LabelList dataKey="value" position="top" fontSize={12} fill="#333" />
-        </Bar>
-      </BarChart>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart
+          data={data}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
+          <XAxis dataKey="label" fontSize={12} tickLine={false} />
+          <YAxis fontSize={12} />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
+            {data.map((_, index) => (
+              <Cell key={index} fill={COLORS[index]} />
+            ))}
+            <LabelList dataKey="value" position="top" fontSize={12} fill="#333" />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };
