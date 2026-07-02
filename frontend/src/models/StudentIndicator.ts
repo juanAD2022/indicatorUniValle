@@ -14,6 +14,7 @@ export interface StudentIndicator {
   tesis_nota: number | null;
   acompanamiento_bra: boolean;
   practica_profesional: boolean;
+  tipo_programa: string;
 }
 
 export interface StudentIndicatorFilters {
@@ -21,5 +22,6 @@ export interface StudentIndicatorFilters {
   estado?: string;
   sexo?: string;
   estrato?: number;
+  tipo_programa?: string;
   search?: string;
 }

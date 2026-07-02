@@ -21,3 +21,4 @@ class StudentIndicator(Base):
     tesis_nota = Column(Numeric(4, 2), nullable=True)
     acompanamiento_bra = Column(Boolean, default=False)
     practica_profesional = Column(Boolean, default=False)
+    tipo_programa = Column(String(20), nullable=False, default="PREGRADO")

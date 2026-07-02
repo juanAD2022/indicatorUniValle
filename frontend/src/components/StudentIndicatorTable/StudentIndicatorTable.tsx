@@ -27,6 +27,7 @@ interface StudentIndicatorTableExtendedProps extends StudentIndicatorTableProps 
 export const StudentIndicatorTable = ({
   data,
   isLoading,
+  tipo_programa,
   onImportComplete,
   onPeriodChange,
 }: StudentIndicatorTableExtendedProps) => {
@@ -127,7 +128,7 @@ export const StudentIndicatorTable = ({
     setImportSuccess(null);
 
     try {
-      const preview = await uploadPreview(file);
+      const preview = await uploadPreview(file, tipo_programa);
       setImportPreview(preview);
       setShowModal(true);
     } catch {
@@ -145,7 +146,7 @@ export const StudentIndicatorTable = ({
 
     setIsImporting(true);
     try {
-      const result = await confirmImport(importPreview.pending_rows);
+      const result = await confirmImport(importPreview.pending_rows, tipo_programa);
       setShowModal(false);
       setImportPreview(null);
       setImportSuccess(result.message);

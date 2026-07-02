@@ -6,6 +6,7 @@ export interface StudentIndicatorStats {
   graduados: number;
   reingresados: number;
   por_amnistia: number;
+  desertores: number;
 }
 
 export interface GenderStats {
@@ -38,37 +39,51 @@ export const getStudentIndicators = async (
   if (filters?.estado) params.estado = filters.estado;
   if (filters?.sexo) params.sexo = filters.sexo;
   if (filters?.estrato) params.estrato = filters.estrato;
+  if (filters?.tipo_programa) params.tipo_programa = filters.tipo_programa;
 
   const response = await api.get<StudentIndicator[]>('/student-indicators', { params });
   return response.data;
 };
 
 export const getStudentIndicatorStats = async (
-  periodo?: string
+  periodo?: string,
+  tipo_programa?: string
 ): Promise<StudentIndicatorStats> => {
   const params: Record<string, string> = {};
   if (periodo) params.periodo = periodo;
+  if (tipo_programa) params.tipo_programa = tipo_programa;
 
   const response = await api.get<StudentIndicatorStats>('/student-indicators/stats', { params });
   return response.data;
 };
 
-export const getGenderStats = async (periodo?: string): Promise<GenderStats> => {
+export const getGenderStats = async (
+  periodo?: string,
+  tipo_programa?: string
+): Promise<GenderStats> => {
   const params: Record<string, string> = {};
   if (periodo) params.periodo = periodo;
+  if (tipo_programa) params.tipo_programa = tipo_programa;
 
   const response = await api.get<GenderStats>('/student-indicators/gender-stats', { params });
   return response.data;
 };
 
-export const getTrendData = async (): Promise<TrendDataPoint[]> => {
-  const response = await api.get<TrendDataPoint[]>('/student-indicators/trend');
+export const getTrendData = async (tipo_programa?: string): Promise<TrendDataPoint[]> => {
+  const params: Record<string, string> = {};
+  if (tipo_programa) params.tipo_programa = tipo_programa;
+
+  const response = await api.get<TrendDataPoint[]>('/student-indicators/trend', { params });
   return response.data;
 };
 
-export const getComputedStats = async (periodo?: string): Promise<ComputedStats> => {
+export const getComputedStats = async (
+  periodo?: string,
+  tipo_programa?: string
+): Promise<ComputedStats> => {
   const params: Record<string, string> = {};
   if (periodo) params.periodo = periodo;
+  if (tipo_programa) params.tipo_programa = tipo_programa;
 
   const response = await api.get<ComputedStats>('/student-indicators/computed-stats', { params });
   return response.data;

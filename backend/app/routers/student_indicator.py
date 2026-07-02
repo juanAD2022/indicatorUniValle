@@ -20,12 +20,15 @@ router = APIRouter(prefix="/api/v1/student-indicators", tags=["student-indicator
 @router.get("/stats", response_model=StudentIndicatorStatsResponse)
 def get_student_indicator_stats(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator.estado, func.count(StudentIndicator.id))
 
     if periodo is not None:
         query = query.filter(StudentIndicator.periodo == periodo)
+    if tipo_programa is not None:
+        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
 
     results = dict(query.group_by(StudentIndicator.estado).all())
 
@@ -34,18 +37,22 @@ def get_student_indicator_stats(
         graduados=results.get("EGRESADO", 0),
         reingresados=results.get("REINGRESADO", 0),
         por_amnistia=results.get("AMNISTIA", 0),
+        desertores=results.get("RETIRADO", 0),
     )
 
 
 @router.get("/gender-stats", response_model=GenderStatsResponse)
 def get_gender_stats(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator.sexo, func.count(StudentIndicator.id))
 
     if periodo is not None:
         query = query.filter(StudentIndicator.periodo == periodo)
+    if tipo_programa is not None:
+        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
 
     results = dict(query.group_by(StudentIndicator.sexo).all())
 
@@ -56,11 +63,16 @@ def get_gender_stats(
 
 
 @router.get("/trend", response_model=list[TrendDataPoint])
-def get_trend_data(db: Session = Depends(get_db)):
+def get_trend_data(
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(StudentIndicator.periodo).distinct()
+    if tipo_programa is not None:
+        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
+
     periodos = (
-        db.query(StudentIndicator.periodo)
-        .distinct()
-        .order_by(StudentIndicator.periodo.desc())
+        query.order_by(StudentIndicator.periodo.desc())
         .limit(10)
         .all()
     )
@@ -68,12 +80,13 @@ def get_trend_data(db: Session = Depends(get_db)):
 
     results = []
     for periodo in periodos:
-        counts = dict(
-            db.query(StudentIndicator.estado, func.count(StudentIndicator.id))
-            .filter(StudentIndicator.periodo == periodo)
-            .group_by(StudentIndicator.estado)
-            .all()
+        count_query = db.query(StudentIndicator.estado, func.count(StudentIndicator.id)).filter(
+            StudentIndicator.periodo == periodo
         )
+        if tipo_programa is not None:
+            count_query = count_query.filter(StudentIndicator.tipo_programa == tipo_programa)
+
+        counts = dict(count_query.group_by(StudentIndicator.estado).all())
         results.append(TrendDataPoint(
             periodo=periodo,
             matriculados=counts.get("MATRICULADO", 0),
@@ -97,6 +110,7 @@ def list_student_indicators(
     tesis_estado: Optional[str] = Query(None, description="Filtrar por estado de tesis"),
     acompanamiento_bra: Optional[bool] = Query(None, description="Filtrar por acompañamiento BRA"),
     practica_profesional: Optional[bool] = Query(None, description="Filtrar por práctica profesional"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator)
@@ -121,6 +135,8 @@ def list_student_indicators(
         query = query.filter(StudentIndicator.acompanamiento_bra == acompanamiento_bra)
     if practica_profesional is not None:
         query = query.filter(StudentIndicator.practica_profesional == practica_profesional)
+    if tipo_programa is not None:
+        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
 
     return query.all()
 
@@ -128,11 +144,14 @@ def list_student_indicators(
 @router.get("/computed-stats", response_model=ComputedStatsResponse)
 def get_computed_stats(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator)
     if periodo is not None:
         query = query.filter(StudentIndicator.periodo == periodo)
+    if tipo_programa is not None:
+        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
 
     all_students = query.all()
 

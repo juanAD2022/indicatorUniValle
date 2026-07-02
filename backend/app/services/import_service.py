@@ -149,7 +149,7 @@ def _validate_row(row: dict) -> list[ImportError]:
     return errors
 
 
-def _normalize_row(row: dict) -> dict:
+def _normalize_row(row: dict, tipo_programa: str) -> dict:
     bra_val = row.get("bra")
     try:
         bra = int(bra_val) if bra_val is not None else 0
@@ -205,6 +205,7 @@ def _normalize_row(row: dict) -> dict:
         "tesis_nota": tesis_nota,
         "acompanamiento_bra": acompanamiento_bra,
         "practica_profesional": practica_profesional,
+        "tipo_programa": tipo_programa,
     }
 
 
@@ -220,8 +221,8 @@ def _detect_changes(old: dict, new: dict) -> list[str]:
     return changed
 
 
-def preview_import(db: Session, file: BinaryIO, filename: str) -> ImportPreviewResponse:
-    print(f"DEBUG: Starting import preview for file: {filename}")
+def preview_import(db: Session, file: BinaryIO, filename: str, tipo_programa: str) -> ImportPreviewResponse:
+    print(f"DEBUG: Starting import preview for file: {filename}, tipo_programa: {tipo_programa}")
     rows, parse_errors = parse_excel(file)
 
     all_errors = list(parse_errors)
@@ -237,7 +238,7 @@ def preview_import(db: Session, file: BinaryIO, filename: str) -> ImportPreviewR
             all_errors.extend(validation_errors)
             continue
 
-        normalized = _normalize_row(row)
+        normalized = _normalize_row(row, tipo_programa)
         row_num = row["_row"]
 
         existing = (
@@ -276,6 +277,7 @@ def preview_import(db: Session, file: BinaryIO, filename: str) -> ImportPreviewR
                 "tesis_nota": float(match.tesis_nota) if match.tesis_nota else None,
                 "acompanamiento_bra": match.acompanamiento_bra,
                 "practica_profesional": match.practica_profesional,
+                "tipo_programa": match.tipo_programa,
             }
 
             fields_changed = _detect_changes(old_dict, normalized)
@@ -316,13 +318,14 @@ def preview_import(db: Session, file: BinaryIO, filename: str) -> ImportPreviewR
     )
 
 
-def execute_import(db: Session, rows: list[ImportPendingRow], user_id: int, username: str) -> dict:
+def execute_import(db: Session, rows: list[ImportPendingRow], user_id: int, username: str, tipo_programa: str) -> dict:
     created = 0
     updated = 0
 
     for item in rows:
         action = item.action
-        data = item.data
+        data = item.data.copy()
+        data["tipo_programa"] = tipo_programa
 
         if action == "create":
             new_record = StudentIndicator(**data)

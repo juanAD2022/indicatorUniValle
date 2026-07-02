@@ -19,6 +19,7 @@ class StudentIndicatorResponse(BaseModel):
     tesis_nota: Optional[Decimal] = None
     acompanamiento_bra: bool
     practica_profesional: bool
+    tipo_programa: str
 
     class Config:
         from_attributes = True
@@ -29,6 +30,7 @@ class StudentIndicatorStatsResponse(BaseModel):
     graduados: int
     reingresados: int
     por_amnistia: int
+    desertores: int
 
 
 class GenderStatsResponse(BaseModel):
@@ -63,3 +65,4 @@ class StudentIndicatorFilter(BaseModel):
     tesis_estado: Optional[str] = None
     acompanamiento_bra: Optional[bool] = None
     practica_profesional: Optional[bool] = None
+    tipo_programa: Optional[str] = None

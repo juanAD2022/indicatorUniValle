@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Header
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Header, Query
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 
@@ -35,12 +35,16 @@ def _extract_token(authorization: str) -> str:
 @router.post("/preview", response_model=ImportPreviewResponse)
 async def import_preview(
     file: UploadFile = File(...),
+    tipo_programa: str = Query(..., description="Tipo de programa: PREGRADO o POSGRADO"),
     authorization: str = Header(None),
     db: Session = Depends(get_db),
 ):
-    print(f"DEBUG: Received file: {file.filename}, Content-Type: {file.content_type}")
+    print(f"DEBUG: Received file: {file.filename}, Content-Type: {file.content_type}, tipo_programa: {tipo_programa}")
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos Excel (.xlsx)")
+
+    if tipo_programa not in ("PREGRADO", "POSGRADO"):
+        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO o POSGRADO")
 
     token = _extract_token(authorization)
     user = _get_current_user(db, token)
@@ -53,7 +57,7 @@ async def import_preview(
     file_obj = io.BytesIO(contents)
 
     try:
-        result = preview_import(db, file_obj, file.filename)
+        result = preview_import(db, file_obj, file.filename, tipo_programa)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al procesar el archivo: {str(e)}")
 
@@ -70,7 +74,7 @@ async def import_confirm(
     user = _get_current_user(db, token)
 
     try:
-        result = execute_import(db, body.rows, user.id, user.username)
+        result = execute_import(db, body.rows, user.id, user.username, body.tipo_programa)
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al ejecutar la importación: {str(e)}")

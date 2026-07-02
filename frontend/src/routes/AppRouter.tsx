@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from '@page/Login/Login.tsx';
 import { Dashboard } from '@page/Dashboard/Dashboard.tsx';
 import { PrivateRoute } from '@components/PrivateRoute/PrivateRoute.tsx';
+import { MainLayout } from '@layouts/MainLayout.tsx';
 import { ForgotPassword } from '@page/ForgotPassword/ForgotPassword.tsx';
 import { ResetPassword } from '@page/ResetPassword/ResetPassword.tsx';
 import { GestionDirectiva } from '@page/GestionDirectiva/GestionDirectiva.tsx';
@@ -18,13 +19,15 @@ export const AppRouter = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<PrivateRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/gestion-directiva" element={<GestionDirectiva />} />
-        <Route path="/pregrado" element={<Pregrado />} />
-        <Route path="/posgrado" element={<Posgrado />} />
-        <Route path="/laboratorio" element={<Laboratorio />} />
-        <Route path="/grupo-inferir" element={<GrupoInferir />} />
-        <Route path="/extension-educacion" element={<ExtensionEducacion />} />
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/gestion-directiva" element={<GestionDirectiva />} />
+          <Route path="/pregrado" element={<Pregrado />} />
+          <Route path="/posgrado" element={<Posgrado />} />
+          <Route path="/laboratorio" element={<Laboratorio />} />
+          <Route path="/grupo-inferir" element={<GrupoInferir />} />
+          <Route path="/extension-educacion" element={<ExtensionEducacion />} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

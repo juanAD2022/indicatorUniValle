@@ -41,17 +41,22 @@ export interface ImportResult {
   message: string;
 }
 
-export const uploadPreview = async (file: File): Promise<ImportPreview> => {
+export const uploadPreview = async (file: File, tipo_programa: string): Promise<ImportPreview> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post<ImportPreview>('/import/preview', formData, {
-    headers: { 'Content-Type': false },
-  });
+  const response = await api.post<ImportPreview>(
+    `/import/preview?tipo_programa=${encodeURIComponent(tipo_programa)}`,
+    formData,
+    { headers: { 'Content-Type': false } }
+  );
   return response.data;
 };
 
-export const confirmImport = async (rows: ImportPendingRow[]): Promise<ImportResult> => {
-  const response = await api.post<ImportResult>('/import/confirm', { rows });
+export const confirmImport = async (
+  rows: ImportPendingRow[],
+  tipo_programa: string
+): Promise<ImportResult> => {
+  const response = await api.post<ImportResult>('/import/confirm', { rows, tipo_programa });
   return response.data;
 };

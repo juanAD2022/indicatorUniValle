@@ -38,6 +38,7 @@ class ImportPreviewResponse(BaseModel):
 
 class ImportConfirmRequest(BaseModel):
     rows: list[ImportPendingRow]
+    tipo_programa: str
 
 
 class ImportConfirmResponse(BaseModel):
