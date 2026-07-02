@@ -165,14 +165,6 @@ export const Pregrado = () => {
             />
           </div>
 
-          <StudentIndicatorTable
-            data={data}
-            isLoading={isLoading}
-            tipo_programa="PREGRADO"
-            onImportComplete={fetchData}
-            onPeriodChange={handlePeriodChange}
-          />
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
             <GenderPieChart
               hombres={genderStats.hombres}
@@ -189,6 +181,14 @@ export const Pregrado = () => {
           <div className="mt-6">
             <TrendLineChart data={trendData} />
           </div>
+
+          <StudentIndicatorTable
+            data={data}
+            isLoading={isLoading}
+            tipo_programa="PREGRADO"
+            onImportComplete={fetchData}
+            onPeriodChange={handlePeriodChange}
+          />
 
           <div className="mt-6">
             <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
