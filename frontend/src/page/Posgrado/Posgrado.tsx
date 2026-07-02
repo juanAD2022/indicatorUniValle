@@ -20,6 +20,7 @@ export const Posgrado = () => {
     graduados: 0,
     reingresados: 0,
     por_amnistia: 0,
+    retirados: 0,
     desertores: 0,
   });
   const [genderStats, setGenderStats] = useState<GenderStats>({

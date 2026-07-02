@@ -30,6 +30,7 @@ class StudentIndicatorStatsResponse(BaseModel):
     graduados: int
     reingresados: int
     por_amnistia: int
+    retirados: int
     desertores: int
 
 

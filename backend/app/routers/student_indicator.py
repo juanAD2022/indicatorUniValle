@@ -48,7 +48,8 @@ def get_student_indicator_stats(
         graduados=estado_results.get("GRADUADO", 0),
         reingresados=vinculacion_results.get("REINGRESO", 0),
         por_amnistia=vinculacion_results.get("AMNISTIA", 0),
-        desertores=estado_results.get("RETIRADO", 0) + estado_results.get("DESERTOR", 0),
+        retirados=estado_results.get("RETIRADO", 0),
+        desertores=estado_results.get("DESERTOR", 0),
     )
 
 

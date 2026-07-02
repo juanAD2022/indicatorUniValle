@@ -6,6 +6,7 @@ export interface StudentIndicatorStats {
   graduados: number;
   reingresados: number;
   por_amnistia: number;
+  retirados: number;
   desertores: number;
 }
 

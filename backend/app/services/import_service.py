@@ -88,11 +88,29 @@ def _validate_row(row: dict) -> list[ImportError]:
     if not row.get("periodo"):
         errors.append(ImportError(row=row_num, field="periodo", message="Período requerido"))
 
-    if not row.get("estado"):
+    estado_val = str(row.get("estado", "")).upper().strip()
+    if not estado_val:
         errors.append(ImportError(row=row_num, field="estado", message="Estado requerido"))
+    elif estado_val not in ("MATRICULADO", "GRADUADO", "RETIRADO", "DESERTOR"):
+        errors.append(
+            ImportError(
+                row=row_num,
+                field="estado",
+                message="Estado debe ser: MATRICULADO, GRADUADO, RETIRADO o DESERTOR",
+            )
+        )
 
-    if not row.get("vinculacion"):
+    vinculacion_val = str(row.get("vinculacion", "")).upper().strip()
+    if not vinculacion_val:
         errors.append(ImportError(row=row_num, field="vinculacion", message="Vinculación requerida"))
+    elif vinculacion_val not in ("ADMISION", "REINGRESO", "AMNISTIA"):
+        errors.append(
+            ImportError(
+                row=row_num,
+                field="vinculacion",
+                message="Vinculación debe ser: ADMISION, REINGRESO o AMNISTIA",
+            )
+        )
 
     bra_val = row.get("bra")
     if bra_val is not None:

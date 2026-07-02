@@ -8,7 +8,7 @@ import { ProceedingsTable } from '@components/ProceedingsTable';
 import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData, getComputedStats } from '@services/studentIndicator';
 import type { StudentIndicator } from '@models/StudentIndicator';
 import type { StudentIndicatorStats, GenderStats, TrendDataPoint, ComputedStats } from '@services/studentIndicator';
-import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass, UserX } from 'lucide-react';
+import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass, UserX, LogOut } from 'lucide-react';
 
 export const Pregrado = () => {
   const [data, setData] = useState<StudentIndicator[]>([]);
@@ -20,6 +20,7 @@ export const Pregrado = () => {
     graduados: 0,
     reingresados: 0,
     por_amnistia: 0,
+    retirados: 0,
     desertores: 0,
   });
   const [genderStats, setGenderStats] = useState<GenderStats>({
@@ -113,7 +114,7 @@ export const Pregrado = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
             <IndicatorCard
               value={stats.matriculados}
               label="MATRICULADOS"
@@ -147,9 +148,17 @@ export const Pregrado = () => {
               icon={<Heart className="h-16 w-16" strokeWidth={1.5} />}
             />
             <IndicatorCard
+              value={stats.retirados}
+              label="RETIRADOS"
+              subtitle="Estudiantes retirados"
+              description="PERIODO ACTUAL"
+              bgColor="#E53935"
+              icon={<LogOut className="h-16 w-16" strokeWidth={1.5} />}
+            />
+            <IndicatorCard
               value={stats.desertores}
               label="DESERTORES"
-              subtitle="Estudiantes retirados"
+              subtitle="Estudiantes desertores"
               description="PERIODO ACTUAL"
               bgColor="#B71C1C"
               icon={<UserX className="h-16 w-16" strokeWidth={1.5} />}
