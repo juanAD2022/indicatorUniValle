@@ -9,7 +9,7 @@ import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTren
 import type { StudentIndicator } from '@models/StudentIndicator';
 import type { StudentIndicatorStats, GenderStats, TrendDataPoint, ComputedStats } from '@services/studentIndicator';
 import { usePeriod } from '@context/usePeriod';
-import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass } from 'lucide-react';
+import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass, UserX, LogOut } from 'lucide-react';
 
 export const Posgrado = () => {
   const [data, setData] = useState<StudentIndicator[]>([]);
@@ -113,7 +113,7 @@ export const Posgrado = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
             <IndicatorCard
               value={stats.matriculados}
               label="MATRICULADOS"
@@ -146,17 +146,25 @@ export const Posgrado = () => {
               bgColor="#FF9800"
               icon={<Heart className="h-16 w-16" strokeWidth={1.5} />}
             />
+            <IndicatorCard
+              value={stats.retirados}
+              label="RETIRADOS"
+              subtitle="Estudiantes retirados"
+              description="PERIODO ACTUAL"
+              bgColor="#E53935"
+              icon={<LogOut className="h-16 w-16" strokeWidth={1.5} />}
+            />
+            <IndicatorCard
+              value={stats.desertores}
+              label="DESERTORES"
+              subtitle="Estudiantes desertores"
+              description="PERIODO ACTUAL"
+              bgColor="#B71C1C"
+              icon={<UserX className="h-16 w-16" strokeWidth={1.5} />}
+            />
           </div>
 
-          <StudentIndicatorTable
-            data={data}
-            isLoading={isLoading}
-            tipo_programa="POSGRADO"
-            onImportComplete={fetchData}
-            selectedPeriod={selectedPeriod}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-6">
             <div className="lg:col-span-5">
               <TrendLineChart data={trendData} />
             </div>
@@ -178,51 +186,63 @@ export const Posgrado = () => {
             </div>
           </div>
 
-          <div className="mt-6">
-            <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
-              Indicadores Calculados
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <IndicatorCard
-                value={`${computedStats.tasa_sobrepermanencia.toFixed(1)}%`}
-                label="SOBREPERMANENCIA"
-                subtitle="Estudiantes con >10 semestres"
-                description={selectedPeriod || "TODOS"}
-                icon={<Clock className="h-16 w-16" strokeWidth={1.5} />}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+            <div className="lg:col-span-7">
+              <StudentIndicatorTable
+                data={data}
+                isLoading={isLoading}
+                tipo_programa="POSGRADO"
+                onImportComplete={fetchData}
+                selectedPeriod={selectedPeriod}
               />
+            </div>
 
-              <IndicatorCard
-                value={computedStats.promedio_tesis.toFixed(2)}
-                label="PROMEDIO TESIS"
-                subtitle="Nota promedio aprobadas"
-                description={selectedPeriod || "TODOS"}
-                icon={<BookOpen className="h-16 w-16" strokeWidth={1.5} />}
-              />
+            <div className="lg:col-span-5">
+              <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
+                Indicadores Calculados
+              </h3>
 
-              <IndicatorCard
-                value={`${computedStats.tasa_retirados_bra.toFixed(1)}%`}
-                label="RETIRADOS BRA"
-                subtitle="Tasa de retiro BRA"
-                description={selectedPeriod || "TODOS"}
-                icon={<UserMinus className="h-16 w-16" strokeWidth={1.5} />}
-              />
+              <div className="grid grid-cols-1 gap-4">
+                <IndicatorCard
+                  value={`${computedStats.tasa_sobrepermanencia.toFixed(1)}%`}
+                  label="SOBREPERMANENCIA"
+                  subtitle="Estudiantes con >10 semestres"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<Clock className="h-16 w-16" strokeWidth={1.5} />}
+                />
 
-              <IndicatorCard
-                value={`${computedStats.tasa_graduados_10.toFixed(1)}%`}
-                label="GRADUADOS"
-                subtitle="Graduados"
-                description={selectedPeriod || "TODOS"}
-                icon={<Timer className="h-16 w-16" strokeWidth={1.5} />}
-              />
+                <IndicatorCard
+                  value={computedStats.promedio_tesis.toFixed(2)}
+                  label="PROMEDIO TESIS"
+                  subtitle="Nota promedio aprobadas"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<BookOpen className="h-16 w-16" strokeWidth={1.5} />}
+                />
 
-              <IndicatorCard
-                value={`${computedStats.tasa_graduados_mas_10.toFixed(1)}%`}
-                label="GRADUADOS >10 SEM"
-                subtitle="Graduados en más de 10"
-                description={selectedPeriod || "TODOS"}
-                icon={<Hourglass className="h-16 w-16" strokeWidth={1.5} />}
-              />
+                <IndicatorCard
+                  value={`${computedStats.tasa_retirados_bra.toFixed(1)}%`}
+                  label="RETIRADOS BRA"
+                  subtitle="Tasa de retiro BRA"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<UserMinus className="h-16 w-16" strokeWidth={1.5} />}
+                />
+
+                <IndicatorCard
+                  value={`${computedStats.tasa_graduados_10.toFixed(1)}%`}
+                  label="GRADUADOS"
+                  subtitle="Graduados"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<Timer className="h-16 w-16" strokeWidth={1.5} />}
+                />
+
+                <IndicatorCard
+                  value={`${computedStats.tasa_graduados_mas_10.toFixed(1)}%`}
+                  label="GRADUADOS >10 SEM"
+                  subtitle="Graduados en más de 10"
+                  description={selectedPeriod || "TODOS"}
+                  icon={<Hourglass className="h-16 w-16" strokeWidth={1.5} />}
+                />
+              </div>
             </div>
           </div>
 

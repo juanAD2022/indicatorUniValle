@@ -11,6 +11,7 @@ import { Posgrado } from '@page/Posgrado/Posgrado.tsx';
 import { Laboratorio } from '@page/Laboratorio/Laboratorio.tsx';
 import { GrupoInferir } from '@page/GrupoInferir/GrupoInferir.tsx';
 import { ExtensionEducacion } from '@page/ExtensionEducacion/ExtensionEducacion.tsx';
+import { DocumentosCargados } from '@page/DocumentosCargados/DocumentosCargados.tsx';
 
 export const AppRouter = () => {
   return (
@@ -27,6 +28,7 @@ export const AppRouter = () => {
           <Route path="/laboratorio" element={<Laboratorio />} />
           <Route path="/grupo-inferir" element={<GrupoInferir />} />
           <Route path="/extension-educacion" element={<ExtensionEducacion />} />
+          <Route path="/carga-documentos" element={<DocumentosCargados />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
