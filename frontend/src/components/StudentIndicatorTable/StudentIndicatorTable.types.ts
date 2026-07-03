@@ -5,7 +5,7 @@ export interface StudentIndicatorTableProps {
   isLoading?: boolean;
   tipo_programa: string;
   onImportComplete?: () => void;
-  onPeriodChange?: (periodo: string | null) => void;
+  selectedPeriod?: string | null;
 }
 
 export type SortField = 'periodo' | 'estado' | 'vinculacion' | 'sexo' | 'estrato' | 'promedio_acumulado';

@@ -13,7 +13,7 @@ import { uploadPreview, confirmImport } from '@services/studentIndicator/importS
 import type { ImportPreview } from '@services/studentIndicator/importService';
 import { ImportPreviewModal } from '@components/ImportPreviewModal';
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 11;
 
 const ESTADO_OPTIONS = ['MATRICULADO', 'GRADUADO', 'RETIRADO', 'DESERTOR'];
 const SEXO_OPTIONS = ['M', 'F'];
@@ -21,7 +21,7 @@ const ESTRATO_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 interface StudentIndicatorTableExtendedProps extends StudentIndicatorTableProps {
   onImportComplete?: () => void;
-  onPeriodChange?: (periodo: string | null) => void;
+  selectedPeriod?: string | null;
 }
 
 export const StudentIndicatorTable = ({
@@ -29,10 +29,9 @@ export const StudentIndicatorTable = ({
   isLoading,
   tipo_programa,
   onImportComplete,
-  onPeriodChange,
+  selectedPeriod,
 }: StudentIndicatorTableExtendedProps) => {
   const [search, setSearch] = useState('');
-  const [filterPeriodo, setFilterPeriodo] = useState('');
   const [filterEstado, setFilterEstado] = useState('');
   const [filterSexo, setFilterSexo] = useState('');
   const [filterEstrato, setFilterEstrato] = useState('');
@@ -48,15 +47,10 @@ export const StudentIndicatorTable = ({
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const periodos = useMemo(() => {
-    const unique = [...new Set(data.map((d) => d.periodo))];
-    return unique.sort().reverse();
-  }, [data]);
-
   const filteredData = useMemo(() => {
     let result = data;
 
-    if (filterPeriodo) result = result.filter((d) => d.periodo === filterPeriodo);
+    if (selectedPeriod) result = result.filter((d) => d.periodo === selectedPeriod);
     if (filterEstado) result = result.filter((d) => d.estado === filterEstado);
     if (filterSexo) result = result.filter((d) => d.sexo === filterSexo);
     if (filterEstrato) result = result.filter((d) => d.estrato === Number(filterEstrato));
@@ -73,7 +67,7 @@ export const StudentIndicatorTable = ({
     }
 
     return result;
-  }, [data, filterPeriodo, filterEstado, filterSexo, filterEstrato, search]);
+  }, [data, selectedPeriod, filterEstado, filterSexo, filterEstrato, search]);
 
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
@@ -104,7 +98,6 @@ export const StudentIndicatorTable = ({
 
   const clearFilters = () => {
     setSearch('');
-    setFilterPeriodo('');
     setFilterEstado('');
     setFilterSexo('');
     setFilterEstrato('');
@@ -196,24 +189,6 @@ export const StudentIndicatorTable = ({
       {/* Filters Bar */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Periodo */}
-          <select
-            value={filterPeriodo}
-            onChange={(e) => {
-              setFilterPeriodo(e.target.value);
-              setCurrentPage(1);
-              onPeriodChange?.(e.target.value || null);
-            }}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#CC1C1C] focus:border-transparent"
-          >
-            <option value="">Periodo</option>
-            {periodos.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-
           {/* Estado */}
           <select
             value={filterEstado}
@@ -348,7 +323,7 @@ export const StudentIndicatorTable = ({
               <th className="px-4 py-3 text-left font-semibold text-gray-700">Semestres</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-700">Pensum %</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-700">BRA</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">Tesis</th>
+              {/* <th className="px-4 py-3 text-left font-semibold text-gray-700">Tesis</th> */}
             </tr>
           </thead>
           <tbody>
@@ -386,16 +361,15 @@ export const StudentIndicatorTable = ({
                   <td className="px-4 py-3 text-gray-700">                    {Number(row.pensum_aprobado_pct).toFixed(1)}%</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        row.bra
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${row.bra
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-600'
+                        }`}
                     >
                       {row.bra}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{row.tesis_estado}</td>
+                  {/* <td className="px-4 py-3 text-gray-700">{row.tesis_estado}</td> */}
                 </tr>
               ))
             )}
@@ -442,11 +416,10 @@ export const StudentIndicatorTable = ({
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
-                    currentPage === page
-                      ? 'bg-[#CC1C1C] text-white'
-                      : 'hover:bg-gray-100 text-gray-600'
-                  }`}
+                  className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${currentPage === page
+                    ? 'bg-[#CC1C1C] text-white'
+                    : 'hover:bg-gray-100 text-gray-600'
+                    }`}
                 >
                   {page}
                 </button>

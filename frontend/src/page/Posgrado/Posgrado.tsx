@@ -8,13 +8,14 @@ import { ProceedingsTable } from '@components/ProceedingsTable';
 import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData, getComputedStats } from '@services/studentIndicator';
 import type { StudentIndicator } from '@models/StudentIndicator';
 import type { StudentIndicatorStats, GenderStats, TrendDataPoint, ComputedStats } from '@services/studentIndicator';
+import { usePeriod } from '@context/usePeriod';
 import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass } from 'lucide-react';
 
 export const Posgrado = () => {
   const [data, setData] = useState<StudentIndicator[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const { selectedPeriod, setAvailablePeriods } = usePeriod();
   const [stats, setStats] = useState<StudentIndicatorStats>({
     matriculados: 0,
     graduados: 0,
@@ -41,12 +42,14 @@ export const Posgrado = () => {
       setIsLoading(true);
       const result = await getStudentIndicators({ tipo_programa: 'POSGRADO' });
       setData(result);
+      const periods = [...new Set(result.map((d) => d.periodo))].sort().reverse();
+      setAvailablePeriods(periods);
     } catch {
       setError('Error al cargar los indicadores estudiantiles.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setAvailablePeriods]);
 
   const fetchStats = useCallback(async (periodo: string | null) => {
     try {
@@ -94,10 +97,6 @@ export const Posgrado = () => {
     fetchGenderStats(selectedPeriod);
     fetchComputedStats(selectedPeriod);
   }, [selectedPeriod, fetchStats, fetchGenderStats, fetchComputedStats]);
-
-  const handlePeriodChange = (periodo: string | null) => {
-    setSelectedPeriod(periodo);
-  };
 
   return (
     <>
@@ -154,7 +153,7 @@ export const Posgrado = () => {
             isLoading={isLoading}
             tipo_programa="POSGRADO"
             onImportComplete={fetchData}
-            onPeriodChange={handlePeriodChange}
+            selectedPeriod={selectedPeriod}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">

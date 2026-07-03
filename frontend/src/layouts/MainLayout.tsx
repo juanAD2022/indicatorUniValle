@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Sidebar } from '@components/Sidebar';
 import { useAuth } from '@context/useAuth';
+import { usePeriod } from '@context/usePeriod';
 import {
   Home,
   GraduationCap,
@@ -61,6 +62,7 @@ export const MainLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { token } = useAuth();
+  const { selectedPeriod, setSelectedPeriod, availablePeriods } = usePeriod();
 
   const pageTitle = PAGE_TITLES[location.pathname] || 'Panel de control';
 
@@ -149,11 +151,15 @@ export const MainLayout = () => {
               {/* Period selector */}
               <div className="hidden sm:flex items-center gap-2">
                 <label className="text-sm text-gray-500">Periodo académico</label>
-                <select className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#CC1C1C]/30 focus:border-[#CC1C1C]">
-                  <option>2025-2</option>
-                  <option>2025-1</option>
-                  <option>2024-2</option>
-                  <option>2024-1</option>
+                <select
+                  value={selectedPeriod || ''}
+                  onChange={(e) => setSelectedPeriod(e.target.value || null)}
+                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#CC1C1C]/30 focus:border-[#CC1C1C]"
+                >
+                  <option value="">Todos</option>
+                  {availablePeriods.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
                 </select>
               </div>
 
