@@ -91,13 +91,13 @@ export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieCh
   return (
     <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
       <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Distribución por Género</h3>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
             data={data}
             cx="40%"
             cy="50%"
-            outerRadius={100}
+            outerRadius={80}
             dataKey="value"
             label={renderCustomLabel}
             labelLine={false}

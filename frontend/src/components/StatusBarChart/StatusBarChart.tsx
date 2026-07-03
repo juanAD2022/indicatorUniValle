@@ -69,7 +69,7 @@ export const StatusBarChart = ({
     <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
       <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Estudiantes por Estado</h3>
       <CustomLegend />
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={327}>
         <BarChart
           data={data}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -77,7 +77,7 @@ export const StatusBarChart = ({
           <XAxis dataKey="label" fontSize={12} tickLine={false} />
           <YAxis fontSize={12} />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={35}>
             {data.map((_, index) => (
               <Cell key={index} fill={COLORS[index]} />
             ))}

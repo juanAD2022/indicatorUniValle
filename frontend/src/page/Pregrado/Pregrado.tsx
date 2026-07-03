@@ -165,18 +165,26 @@ export const Pregrado = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            <GenderPieChart
-              hombres={genderStats.hombres}
-              mujeres={genderStats.mujeres}
-            />
-            <StatusBarChart
-              matriculados={stats.matriculados}
-              graduados={stats.graduados}
-              reingresados={stats.reingresados}
-              por_amnistia={stats.por_amnistia}
-            />
-            <TrendLineChart data={trendData} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+            <div className="lg:col-span-5">
+              <TrendLineChart data={trendData} />
+            </div>
+
+            <div className="lg:col-span-4">
+              <StatusBarChart
+                matriculados={stats.matriculados}
+                graduados={stats.graduados}
+                reingresados={stats.reingresados}
+                por_amnistia={stats.por_amnistia}
+              />
+            </div>
+
+            <div className="lg:col-span-3">
+              <GenderPieChart
+                hombres={genderStats.hombres}
+                mujeres={genderStats.mujeres}
+              />
+            </div>
           </div>
 
           <StudentIndicatorTable
