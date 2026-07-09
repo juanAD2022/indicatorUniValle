@@ -1,0 +1,1 @@
+export { RecentDocumentsCard } from './RecentDocumentsCard';

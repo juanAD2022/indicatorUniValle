@@ -13,8 +13,7 @@ import type { TrendLineChartProps } from './TrendLineChart.types';
 const COLORS = {
   matriculados: '#CC1C1C',
   graduados: '#1565C0',
-  reingresados: '#4CAF50',
-  por_amnistia: '#FF9800',
+  desertores: '#4CAF50',
 };
 
 const CustomTooltip = ({
@@ -95,18 +94,9 @@ export const TrendLineChart = ({ data, className = '' }: TrendLineChartProps) =>
           />
           <Line
             type="monotone"
-            dataKey="reingresados"
-            name="Reingresados"
-            stroke={COLORS.reingresados}
-            strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="por_amnistia"
-            name="Amnistía"
-            stroke={COLORS.por_amnistia}
+            dataKey="desertores"
+            name="Desertores"
+            stroke={COLORS.desertores}
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}

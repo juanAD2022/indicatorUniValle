@@ -19,8 +19,7 @@ export interface TrendDataPoint {
   periodo: string;
   matriculados: number;
   graduados: number;
-  reingresados: number;
-  por_amnistia: number;
+  desertores: number;
 }
 
 export interface ComputedStats {

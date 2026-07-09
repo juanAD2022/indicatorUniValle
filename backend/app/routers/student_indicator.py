@@ -103,8 +103,7 @@ def get_trend_data(
             periodo=periodo,
             matriculados=counts.get("MATRICULADO", 0),
             graduados=counts.get("EGRESADO", 0),
-            reingresados=counts.get("REINGRESADO", 0),
-            por_amnistia=counts.get("AMNISTIA", 0),
+            desertores=counts.get("DESERTOR", 0),
         ))
 
     return results

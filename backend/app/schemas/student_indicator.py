@@ -43,8 +43,7 @@ class TrendDataPoint(BaseModel):
     periodo: str
     matriculados: int
     graduados: int
-    reingresados: int
-    por_amnistia: int
+    desertores: int
 
 
 class ComputedStatsResponse(BaseModel):
@@ -53,6 +52,22 @@ class ComputedStatsResponse(BaseModel):
     tasa_retirados_bra: float
     tasa_graduados_10: float
     tasa_graduados_mas_10: float
+
+
+class EstudiantesPorTipo(BaseModel):
+    pregrado: int
+    posgrado: int
+    maestria: int
+
+
+class DashboardStatsResponse(BaseModel):
+    estudiantes_activos_total: int
+    estudiantes_por_tipo: EstudiantesPorTipo
+    profesores: int
+    usuarios_laboratorio: int
+    documentos: int
+    publicaciones: int
+    cursos_extension: int
 
 
 class StudentIndicatorFilter(BaseModel):

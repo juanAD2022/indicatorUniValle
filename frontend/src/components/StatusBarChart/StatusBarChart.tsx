@@ -1,13 +1,12 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList, ResponsiveContainer } from 'recharts';
 import type { StatusBarChartProps } from './StatusBarChart.types';
 
-const COLORS = ['#CC1C1C', '#1565C0', '#4CAF50', '#FF9800'];
+const COLORS = ['#CC1C1C', '#1565C0', '#4CAF50'];
 
 const LEGEND_ITEMS = [
   { value: 'Matriculados', color: COLORS[0] },
   { value: 'Graduados', color: COLORS[1] },
-  { value: 'Reingresados', color: COLORS[2] },
-  { value: 'Amnistía', color: COLORS[3] },
+  { value: 'Desertores', color: COLORS[2] },
 ];
 
 const CustomLegend = () => (
@@ -41,18 +40,16 @@ const CustomTooltip = ({
 export const StatusBarChart = ({
   matriculados,
   graduados,
-  reingresados,
-  por_amnistia,
+  desertores,
   className = '',
 }: StatusBarChartProps) => {
   const data = [
     { label: 'Matriculados', value: matriculados },
     { label: 'Graduados', value: graduados },
-    { label: 'Reingresados', value: reingresados },
-    { label: 'Amnistía', value: por_amnistia },
+    { label: 'Desertores', value: desertores },
   ];
 
-  const total = matriculados + graduados + reingresados + por_amnistia;
+  const total = matriculados + graduados + desertores;
 
   if (total === 0) {
     return (

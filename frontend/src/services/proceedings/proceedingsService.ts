@@ -52,6 +52,11 @@ export const getDownloadUrl = (id: number): string => {
   return `${baseURL}/proceedings/${id}/download`;
 };
 
+export const getAllProceedings = async (): Promise<Proceeding[]> => {
+  const response = await api.get<Proceeding[]>('/proceedings');
+  return response.data;
+};
+
 export const getCategories = async (): Promise<Category[]> => {
   const response = await api.get<Category[]>('/categories');
   return response.data;

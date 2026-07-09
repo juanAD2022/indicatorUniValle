@@ -173,8 +173,7 @@ export const Pregrado = () => {
               <StatusBarChart
                 matriculados={stats.matriculados}
                 graduados={stats.graduados}
-                reingresados={stats.reingresados}
-                por_amnistia={stats.por_amnistia}
+                desertores={stats.desertores}
               />
             </div>
 

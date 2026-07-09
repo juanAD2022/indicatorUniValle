@@ -1,5 +1,6 @@
 export {
   getProceedings,
+  getAllProceedings,
   uploadProceeding,
   deleteProceeding,
   getDownloadUrl,
