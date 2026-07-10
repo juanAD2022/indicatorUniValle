@@ -11,74 +11,74 @@ Base.metadata.create_all(bind=engine)
 
 USERS = [
     {
-        "username": "administrador",
-        "email": "administrador@correo.univalle.edu.co",
-        "full_name": "Administrador",
+        "username": "admin",
+        "email": "yeimy.marin@correounivalle.edu.co",
+        "full_name": "ACTORES",
         "password": "UniValle2024",
         "role": "admin",
     },
     {
-        "username": "jose.n.tovar",
-        "email": "jose.n.tovar@correo.univalle.edu.co",
-        "full_name": "José N. Tovar",
+        "username": "director.escuela",
+        "email": "jose.r.tovar@correounivalle.edu.co",
+        "full_name": "ACTORES",
         "password": "UniValle2024",
         "role": "director_escuela",
     },
     {
-        "username": "andres.echoa",
-        "email": "andres.echoa@correo.univalle.edu.co",
-        "full_name": "Andrés Echoa",
-        "password": "UniValle2024",
-        "role": "coordinador_lab",
-    },
-    {
-        "username": "jaime.mosquera",
-        "email": "jaime.mosquera@correo.univalle.edu.co",
-        "full_name": "Jaime Mosquera",
-        "password": "UniValle2024",
-        "role": "admin",
-    },
-    {
-        "username": "pregrado.estadistica",
-        "email": "pregrado.estadistica@correo.univalle.edu.co",
-        "full_name": "Secretaria Pregrado Estadistica",
-        "password": "UniValle2024",
-        "role": "secretaria_pregrado",
-    },
-    {
-        "username": "posgraduo.estadistica",
-        "email": "posgraduo.estadistica@correo.univalle.edu.co",
-        "full_name": "Secretaria Posgrado Estadistica",
-        "password": "UniValle2024",
-        "role": "secretaria_posgrado",
-    },
-    {
-        "username": "lu.pereira",
-        "email": "lu.pereira@correo.univalle.edu.co",
-        "full_name": "Lu Pereira",
-        "password": "UniValle2024",
-        "role": "coordinador_posgrado",
-    },
-    {
-        "username": "direccion.estadistica",
-        "email": "direccion.estadistica@correo.univalle.edu.co",
-        "full_name": "Secretaria Escuela Estadistica",
+        "username": "secretaria.escuela",
+        "email": "direccion.estadistica@correounivalle.edu.co",
+        "full_name": "ACTORES",
         "password": "UniValle2024",
         "role": "secretaria_escuela",
     },
     {
-        "username": "jennyfer.portilla",
-        "email": "jennyfer.portilla@correo.univalle.edu.co",
-        "full_name": "Jennyfer Portilla",
+        "username": "coordinador.lab",
+        "email": "cesar.ojeda@correounivalle.edu.co",
+        "full_name": "ACTORES",
         "password": "UniValle2024",
-        "role": "coordinador_extension",
+        "role": "coordinador_lab",
     },
     {
-        "username": "inferior.estadistica",
-        "email": "inferior.estadistica@correo.univalle.edu.co",
-        "full_name": "Grupo Inferior Estadistica",
+        "username": "director.pregrado",
+        "email": "jaime.mosquera@correounivalle.edu.co",
+        "full_name": "ACTORES",
         "password": "UniValle2024",
-        "role": "grupo_inferior",
+        "role": "director_pregrado",
+    },
+    {
+        "username": "secretaria.pregrado",
+        "email": "pregrado.estadistica@correounivalle.edu.co",
+        "full_name": "ACTORES",
+        "password": "UniValle2024",
+        "role": "secretaria_pregrado",
+    },
+    {
+        "username": "coordinador.posgrado",
+        "email": "luz.pereira@correounivalle.edu.co",
+        "full_name": "ACTORES",
+        "password": "UniValle2024",
+        "role": "coordinador_posgrado",
+    },
+    {
+        "username": "secretaria.posgrado",
+        "email": "posgrado.estadistica@correounivalle.edu.co",
+        "full_name": "ACTORES",
+        "password": "UniValle2024",
+        "role": "secretaria_posgrado",
+    },
+    {
+        "username": "grupo.inferir",
+        "email": "inferir.estadistica@correounivalle.edu.co",
+        "full_name": "ACTORES",
+        "password": "UniValle2024",
+        "role": "grupo_inferir",
+    },
+    {
+        "username": "coordinador.extension",
+        "email": "jennyfer.portilla@correounivalle.edu.co",
+        "full_name": "ACTORES",
+        "password": "UniValle2024",
+        "role": "coordinador_extension",
     },
 ]
 
@@ -87,36 +87,34 @@ def seed():
     db = SessionLocal()
     try:
         for user_data in USERS:
-            existing_username = db.query(User).filter(
+            existing_user = db.query(User).filter(
                 User.username == user_data["username"]
             ).first()
-            if existing_username:
-                print(f"ERROR: Usuario '{user_data['username']}' ya existe")
-                sys.exit(1)
 
-            existing_email = db.query(User).filter(
-                User.email == user_data["email"]
-            ).first()
-            if existing_email:
-                print(f"ERROR: Email '{user_data['email']}' ya existe")
-                sys.exit(1)
-
-        for user_data in USERS:
-            user = User(
-                username=user_data["username"],
-                email=user_data["email"],
-                full_name=user_data["full_name"],
-                hashed_password=get_password_hash(user_data["password"]),
-                role=user_data["role"],
-                is_active=True,
-            )
-            db.add(user)
+            if existing_user:
+                existing_user.email = user_data["email"]
+                existing_user.full_name = user_data["full_name"]
+                existing_user.hashed_password = get_password_hash(user_data["password"])
+                existing_user.role = user_data["role"]
+                existing_user.is_active = True
+                print(f"Usuario '{user_data['username']}' actualizado")
+            else:
+                user = User(
+                    username=user_data["username"],
+                    email=user_data["email"],
+                    full_name=user_data["full_name"],
+                    hashed_password=get_password_hash(user_data["password"]),
+                    role=user_data["role"],
+                    is_active=True,
+                )
+                db.add(user)
+                print(f"Usuario '{user_data['username']} creado")
 
         db.commit()
-        print(f"Se crearon {len(USERS)} usuarios exitosamente")
+        print(f"Proceso completado. {len(USERS)} usuarios procesados")
     except Exception as e:
         db.rollback()
-        print(f"Error al crear usuarios: {e}")
+        print(f"Error al procesar usuarios: {e}")
         sys.exit(1)
     finally:
         db.close()

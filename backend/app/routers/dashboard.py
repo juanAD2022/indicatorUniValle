@@ -30,9 +30,9 @@ def get_dashboard_stats(
     )
 
     estudiantes_pregrado = tipo_results.get("PREGRADO", 0)
-    estudiantes_posgrado = tipo_results.get("POSGRADO", 0)
+    estudiantes_especializacion = tipo_results.get("ESPECIALIZACION", 0)
     estudiantes_maestria = tipo_results.get("MAESTRIA", 0)
-    estudiantes_total = estudiantes_pregrado + estudiantes_posgrado + estudiantes_maestria
+    estudiantes_total = estudiantes_pregrado + estudiantes_especializacion + estudiantes_maestria
 
     # Documentos cargados
     documentos = db.query(func.count(Proceeding.id)).scalar() or 0
@@ -41,7 +41,7 @@ def get_dashboard_stats(
         estudiantes_activos_total=estudiantes_total,
         estudiantes_por_tipo={
             "pregrado": estudiantes_pregrado,
-            "posgrado": estudiantes_posgrado,
+            "especializacion": estudiantes_especializacion,
             "maestria": estudiantes_maestria,
         },
         profesores=0,

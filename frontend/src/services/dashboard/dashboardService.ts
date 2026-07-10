@@ -2,7 +2,7 @@ import { api } from '@services/axiosConfig';
 
 export interface EstudiantesPorTipo {
   pregrado: number;
-  posgrado: number;
+  especializacion: number;
   maestria: number;
 }
 

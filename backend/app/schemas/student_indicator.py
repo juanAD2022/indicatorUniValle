@@ -56,7 +56,7 @@ class ComputedStatsResponse(BaseModel):
 
 class EstudiantesPorTipo(BaseModel):
     pregrado: int
-    posgrado: int
+    especializacion: int
     maestria: int
 
 

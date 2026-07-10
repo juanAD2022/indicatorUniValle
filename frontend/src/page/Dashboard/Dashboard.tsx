@@ -25,12 +25,12 @@ import {
   FileBarChart,
 } from 'lucide-react';
 
-type ProgramFilter = 'TODOS' | 'PREGRADO' | 'POSGRADO' | 'MAESTRIA';
+type ProgramFilter = 'TODOS' | 'PREGRADO' | 'ESPECIALIZACION' | 'MAESTRIA';
 
 const PROGRAM_FILTERS: { key: ProgramFilter; label: string }[] = [
   { key: 'TODOS', label: 'Todos' },
   { key: 'PREGRADO', label: 'Pregrado' },
-  { key: 'POSGRADO', label: 'Posgrado' },
+  { key: 'ESPECIALIZACION', label: 'Especialización' },
   { key: 'MAESTRIA', label: 'Maestría' },
 ];
 

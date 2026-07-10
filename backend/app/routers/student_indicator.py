@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/v1/student-indicators", tags=["student-indicator
 @router.get("/stats", response_model=StudentIndicatorStatsResponse)
 def get_student_indicator_stats(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
-    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO/ESPECIALIZACION)"),
     db: Session = Depends(get_db),
 ):
     base_filter = []
@@ -56,7 +56,7 @@ def get_student_indicator_stats(
 @router.get("/gender-stats", response_model=GenderStatsResponse)
 def get_gender_stats(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
-    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO/ESPECIALIZACION)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator.sexo, func.count(StudentIndicator.id))
@@ -76,7 +76,7 @@ def get_gender_stats(
 
 @router.get("/trend", response_model=list[TrendDataPoint])
 def get_trend_data(
-    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO/ESPECIALIZACION)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator.periodo).distinct()
@@ -121,7 +121,7 @@ def list_student_indicators(
     tesis_estado: Optional[str] = Query(None, description="Filtrar por estado de tesis"),
     acompanamiento_bra: Optional[bool] = Query(None, description="Filtrar por acompañamiento BRA"),
     practica_profesional: Optional[bool] = Query(None, description="Filtrar por práctica profesional"),
-    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO/ESPECIALIZACION)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator)
@@ -155,7 +155,7 @@ def list_student_indicators(
 @router.get("/computed-stats", response_model=ComputedStatsResponse)
 def get_computed_stats(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
-    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO)"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO/ESPECIALIZACION)"),
     db: Session = Depends(get_db),
 ):
     query = db.query(StudentIndicator)

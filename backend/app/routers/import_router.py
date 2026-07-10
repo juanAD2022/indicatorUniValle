@@ -35,7 +35,7 @@ def _extract_token(authorization: str) -> str:
 @router.post("/preview", response_model=ImportPreviewResponse)
 async def import_preview(
     file: UploadFile = File(...),
-    tipo_programa: str = Query(..., description="Tipo de programa: PREGRADO o POSGRADO"),
+    tipo_programa: str = Query(..., description="Tipo de programa: PREGRADO, POSGRADO o ESPECIALIZACION"),
     authorization: str = Header(None),
     db: Session = Depends(get_db),
 ):
@@ -43,8 +43,8 @@ async def import_preview(
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos Excel (.xlsx)")
 
-    if tipo_programa not in ("PREGRADO", "POSGRADO"):
-        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO o POSGRADO")
+    if tipo_programa not in ("PREGRADO", "POSGRADO", "ESPECIALIZACION"):
+        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO, POSGRADO o ESPECIALIZACION")
 
     token = _extract_token(authorization)
     user = _get_current_user(db, token)
