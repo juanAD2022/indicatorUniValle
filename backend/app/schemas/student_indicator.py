@@ -82,3 +82,61 @@ class StudentIndicatorFilter(BaseModel):
     acompanamiento_bra: Optional[bool] = None
     practica_profesional: Optional[bool] = None
     tipo_programa: Optional[str] = None
+
+
+# --- Posgrado Schemas ---
+
+
+class PosgradoIndicatorResponse(BaseModel):
+    id: int
+    periodo: str
+    tipo_programa: str
+    matriculados: int
+    graduados: int
+    desertores: int
+    promedio_acumulado: Decimal
+    hombres: int
+    mujeres: int
+    empleados: int
+    desempleados: int
+    financiacion_propia: int
+    financiacion_beca: int
+    financiacion_credito: int
+    ponencias: int
+    publicaciones: int
+    proyectos_desarrollo: Optional[int] = None
+    proyectos_finalizados: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PosgradoIndicatorStatsResponse(BaseModel):
+    matriculados: int
+    graduados: int
+    desertores: int
+    promedio_acumulado: float
+    empleados: int
+    desempleados: int
+    ponencias: int
+    publicaciones: int
+    proyectos_desarrollo: Optional[int] = None
+    proyectos_finalizados: Optional[int] = None
+
+
+class PosgradoGenderStatsResponse(BaseModel):
+    hombres: int
+    mujeres: int
+
+
+class PosgradoTrendDataPoint(BaseModel):
+    periodo: str
+    matriculados: int
+    graduados: int
+    desertores: int
+
+
+class PosgradoFinancingStatsResponse(BaseModel):
+    propia: int
+    beca: int
+    credito: int

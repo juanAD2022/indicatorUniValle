@@ -6,6 +6,7 @@ from app.database.database import get_db
 from app.config import SECRET_KEY, ALGORITHM
 from app.schemas.import_schema import ImportPreviewResponse, ImportConfirmRequest, ImportConfirmResponse
 from app.services.import_service import preview_import, execute_import
+from app.services.posgrado_import_service import preview_posgrado_import, execute_posgrado_import
 from app.models.user import User
 
 router = APIRouter(prefix="/api/v1/import", tags=["import"])
@@ -57,7 +58,10 @@ async def import_preview(
     file_obj = io.BytesIO(contents)
 
     try:
-        result = preview_import(db, file_obj, file.filename, tipo_programa)
+        if tipo_programa == "POSGRADO":
+            result = preview_posgrado_import(db, file_obj, file.filename)
+        else:
+            result = preview_import(db, file_obj, file.filename, tipo_programa)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al procesar el archivo: {str(e)}")
 
@@ -74,7 +78,10 @@ async def import_confirm(
     user = _get_current_user(db, token)
 
     try:
-        result = execute_import(db, body.rows, user.id, user.username, body.tipo_programa)
+        if body.tipo_programa == "POSGRADO":
+            result = execute_posgrado_import(db, body.rows, user.id, user.username)
+        else:
+            result = execute_import(db, body.rows, user.id, user.username, body.tipo_programa)
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al ejecutar la importación: {str(e)}")
