@@ -1,5 +1,5 @@
 import { api } from '@services/axiosConfig';
-import type { StudentIndicator, StudentIndicatorFilters } from '@models/StudentIndicator';
+import type { StudentIndicator, StudentIndicatorFilters, CohortSummary } from '@models/StudentIndicator';
 
 export interface StudentIndicatorStats {
   matriculados: number;
@@ -24,7 +24,7 @@ export interface TrendDataPoint {
 
 export interface ComputedStats {
   tasa_sobrepermanencia: number;
-  promedio_tesis: number;
+  tasa_deserciones: number;
   tasa_retirados_bra: number;
   tasa_graduados_10: number;
   tasa_graduados_mas_10: number;
@@ -86,5 +86,13 @@ export const getComputedStats = async (
   if (tipo_programa) params.tipo_programa = tipo_programa;
 
   const response = await api.get<ComputedStats>('/student-indicators/computed-stats', { params });
+  return response.data;
+};
+
+export const getCohortSummary = async (tipo_programa?: string): Promise<CohortSummary[]> => {
+  const params: Record<string, string> = {};
+  if (tipo_programa) params.tipo_programa = tipo_programa;
+
+  const response = await api.get<CohortSummary[]>('/student-indicators/cohort-summary', { params });
   return response.data;
 };

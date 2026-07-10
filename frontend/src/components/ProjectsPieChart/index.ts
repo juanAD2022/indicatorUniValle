@@ -1,0 +1,1 @@
+export { ProjectsPieChart } from './ProjectsPieChart';

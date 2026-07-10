@@ -1,0 +1,1 @@
+export { ParticipationPercentages } from './ParticipationPercentages';

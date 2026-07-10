@@ -25,3 +25,14 @@ export interface StudentIndicatorFilters {
   tipo_programa?: string;
   search?: string;
 }
+
+export interface CohortSummary {
+  periodo: string;
+  matriculados: number;
+  graduados: number;
+  desertores: number;
+  retirados_bra: number;
+  tesis_en_desarrollo: number;
+  tesis_finalizados: number;
+  practicas_profesionales: number;
+}

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app.config  # noqa: F401 - carga .env al inicio
 from app.database.database import engine, Base, SessionLocal
-from app.routers import auth, student_indicator, import_router, category, proceedings, alert, dashboard, posgrado_indicator
+from app.routers import auth, student_indicator, import_router, category, proceedings, alert, dashboard, posgrado_indicator, grupo_inferir_indicator
 from app.models.category import Category
 
 Base.metadata.create_all(bind=engine)
@@ -41,6 +41,7 @@ app.include_router(proceedings.router)
 app.include_router(alert.router)
 app.include_router(dashboard.router)
 app.include_router(posgrado_indicator.router)
+app.include_router(grupo_inferir_indicator.router)
 
 
 @app.get("/")

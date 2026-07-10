@@ -48,7 +48,7 @@ class TrendDataPoint(BaseModel):
 
 class ComputedStatsResponse(BaseModel):
     tasa_sobrepermanencia: float
-    promedio_tesis: float
+    tasa_deserciones: float
     tasa_retirados_bra: float
     tasa_graduados_10: float
     tasa_graduados_mas_10: float
@@ -70,6 +70,17 @@ class DashboardStatsResponse(BaseModel):
     cursos_extension: int
 
 
+class CohortSummaryResponse(BaseModel):
+    periodo: str
+    matriculados: int
+    graduados: int
+    desertores: int
+    retirados_bra: int
+    tesis_en_desarrollo: int
+    tesis_finalizados: int
+    practicas_profesionales: int
+
+
 class StudentIndicatorFilter(BaseModel):
     periodo: Optional[str] = None
     estado: Optional[str] = None
@@ -82,6 +93,14 @@ class StudentIndicatorFilter(BaseModel):
     acompanamiento_bra: Optional[bool] = None
     practica_profesional: Optional[bool] = None
     tipo_programa: Optional[str] = None
+
+
+class PosgradoComputedStatsResponse(BaseModel):
+    tasa_sobrepermanencia: float
+    tasa_deserciones: float
+    tasa_retirados_bra: float
+    tasa_graduados_10: float
+    tasa_graduados_mas_10: float
 
 
 # --- Posgrado Schemas ---

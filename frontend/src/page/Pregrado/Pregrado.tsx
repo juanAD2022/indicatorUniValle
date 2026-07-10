@@ -5,14 +5,14 @@ import { GenderPieChart } from '@components/GenderPieChart';
 import { StatusBarChart } from '@components/StatusBarChart';
 import { TrendLineChart } from '@components/TrendLineChart';
 import { ProceedingsTable } from '@components/ProceedingsTable';
-import { getStudentIndicators, getStudentIndicatorStats, getGenderStats, getTrendData, getComputedStats } from '@services/studentIndicator';
-import type { StudentIndicator } from '@models/StudentIndicator';
+import { getCohortSummary, getStudentIndicatorStats, getGenderStats, getTrendData, getComputedStats } from '@services/studentIndicator';
+import type { CohortSummary } from '@models/StudentIndicator';
 import type { StudentIndicatorStats, GenderStats, TrendDataPoint, ComputedStats } from '@services/studentIndicator';
 import { usePeriod } from '@context/usePeriod';
-import { Users, GraduationCap, UserCheck, Heart, Clock, BookOpen, UserMinus, Timer, Hourglass, UserX, LogOut } from 'lucide-react';
+import { Users, GraduationCap, UserCheck, Heart, Clock, UserMinus, Timer, Hourglass, UserX, LogOut } from 'lucide-react';
 
 export const Pregrado = () => {
-  const [data, setData] = useState<StudentIndicator[]>([]);
+  const [data, setData] = useState<CohortSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { selectedPeriod, setAvailablePeriods } = usePeriod();
@@ -31,7 +31,7 @@ export const Pregrado = () => {
   const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
   const [computedStats, setComputedStats] = useState<ComputedStats>({
     tasa_sobrepermanencia: 0,
-    promedio_tesis: 0,
+    tasa_deserciones: 0,
     tasa_retirados_bra: 0,
     tasa_graduados_10: 0,
     tasa_graduados_mas_10: 0,
@@ -40,9 +40,9 @@ export const Pregrado = () => {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const result = await getStudentIndicators({ tipo_programa: 'PREGRADO' });
+      const result = await getCohortSummary('PREGRADO');
       setData(result);
-      const periods = [...new Set(result.map((d) => d.periodo))].sort().reverse();
+      const periods = result.map((d) => d.periodo);
       setAvailablePeriods(periods);
     } catch {
       setError('Error al cargar los indicadores estudiantiles.');
@@ -101,7 +101,7 @@ export const Pregrado = () => {
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-[#CC1C1C]">Indicadores Estudiantiles - Pregrado</h2>
+        <h2 className="text-2xl font-bold text-[#CC1C1C]">Indicadores Académicos – Pregrado</h2>
         <p className="text-gray-600 mt-1">
           Consulta y filtra los indicadores académicos de los estudiantes de pregrado.
         </p>
@@ -211,11 +211,11 @@ export const Pregrado = () => {
                 />
 
                 <IndicatorCard
-                  value={computedStats.promedio_tesis.toFixed(2)}
-                  label="PROMEDIO TESIS"
-                  subtitle="Nota promedio aprobadas"
+                  value={`${computedStats.tasa_deserciones.toFixed(1)}%`}
+                  label="DESERCIONES"
+                  subtitle="Tasa de deserción"
                   description={selectedPeriod || "TODOS"}
-                  icon={<BookOpen className="h-16 w-16" strokeWidth={1.5} />}
+                  icon={<UserX className="h-16 w-16" strokeWidth={1.5} />}
                 />
 
                 <IndicatorCard

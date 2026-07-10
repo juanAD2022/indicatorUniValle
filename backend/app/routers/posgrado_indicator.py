@@ -12,6 +12,7 @@ from app.schemas.student_indicator import (
     PosgradoGenderStatsResponse,
     PosgradoTrendDataPoint,
     PosgradoFinancingStatsResponse,
+    PosgradoComputedStatsResponse,
 )
 
 router = APIRouter(prefix="/api/v1/posgrado-indicators", tags=["posgrado-indicators"])
@@ -105,6 +106,35 @@ def get_posgrado_trend_data(
         )
         for r in records
     ]
+
+
+@router.get("/computed-stats", response_model=PosgradoComputedStatsResponse)
+def get_posgrado_computed_stats(
+    periodo: Optional[str] = Query(None, description="Filtrar por periodo"),
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo: MAESTRIA o ESPECIALIZACION"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(PosgradoIndicator)
+    if periodo is not None:
+        query = query.filter(PosgradoIndicator.periodo == periodo)
+    if tipo_programa is not None:
+        query = query.filter(PosgradoIndicator.tipo_programa == tipo_programa)
+
+    all_records = query.all()
+
+    matriculados = sum(r.matriculados for r in all_records)
+    graduados = sum(r.graduados for r in all_records)
+    desertores = sum(r.desertores for r in all_records)
+
+    tasa_deserciones = (desertores / matriculados * 100) if matriculados > 0 else 0.0
+
+    return PosgradoComputedStatsResponse(
+        tasa_sobrepermanencia=0.0,
+        tasa_deserciones=round(tasa_deserciones, 1),
+        tasa_retirados_bra=0.0,
+        tasa_graduados_10=0.0,
+        tasa_graduados_mas_10=0.0,
+    )
 
 
 @router.get("/financing-stats", response_model=PosgradoFinancingStatsResponse)

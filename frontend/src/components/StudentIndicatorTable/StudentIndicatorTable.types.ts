@@ -1,12 +1,12 @@
-import type { StudentIndicator } from '@models/StudentIndicator';
+import type { CohortSummary } from '@models/StudentIndicator';
 
 export interface StudentIndicatorTableProps {
-  data: StudentIndicator[];
+  data: CohortSummary[];
   isLoading?: boolean;
   tipo_programa: string;
   onImportComplete?: () => void;
   selectedPeriod?: string | null;
 }
 
-export type SortField = 'periodo' | 'estado' | 'vinculacion' | 'sexo' | 'estrato' | 'promedio_acumulado';
+export type SortField = keyof CohortSummary;
 export type SortDirection = 'asc' | 'desc';

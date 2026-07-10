@@ -1,0 +1,1 @@
+export { GrupoInferirTable } from './GrupoInferirTable';

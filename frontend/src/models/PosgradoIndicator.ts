@@ -50,4 +50,12 @@ export interface PosgradoFinancingStats {
   credito: number;
 }
 
+export interface PosgradoComputedStats {
+  tasa_sobrepermanencia: number;
+  tasa_deserciones: number;
+  tasa_retirados_bra: number;
+  tasa_graduados_10: number;
+  tasa_graduados_mas_10: number;
+}
+
 export type PosgradoProgramType = 'MAESTRIA' | 'ESPECIALIZACION';

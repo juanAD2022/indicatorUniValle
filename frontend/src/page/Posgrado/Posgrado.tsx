@@ -4,19 +4,20 @@ import { GenderPieChart } from '@components/GenderPieChart';
 import { StatusBarChart } from '@components/StatusBarChart';
 import { TrendLineChart } from '@components/TrendLineChart';
 import { PosgradoIndicatorTable } from '@components/PosgradoIndicatorTable';
+import { ProceedingsTable } from '@components/ProceedingsTable';
 import {
   getPosgradoIndicators,
   getPosgradoIndicatorStats,
   getPosgradoGenderStats,
   getPosgradoTrendData,
-  getPosgradoFinancingStats,
+  getPosgradoComputedStats,
 } from '@services/posgradoIndicator';
 import type {
   PosgradoIndicator,
   PosgradoIndicatorStats,
   PosgradoGenderStats,
   PosgradoTrendDataPoint,
-  PosgradoFinancingStats,
+  PosgradoComputedStats,
   PosgradoProgramType,
 } from '@models/PosgradoIndicator';
 import { usePeriod } from '@context/usePeriod';
@@ -27,9 +28,10 @@ import {
   Briefcase,
   Mic,
   BookOpen,
-  DollarSign,
-  Award,
-  CreditCard,
+  Clock,
+  UserMinus,
+  Timer,
+  Hourglass,
 } from 'lucide-react';
 
 type ProgramFilter = 'MAESTRIA' | 'ESPECIALIZACION';
@@ -66,10 +68,12 @@ export const Posgrado = () => {
 
   const [trendData, setTrendData] = useState<PosgradoTrendDataPoint[]>([]);
 
-  const [financingStats, setFinancingStats] = useState<PosgradoFinancingStats>({
-    propia: 0,
-    beca: 0,
-    credito: 0,
+  const [computedStats, setComputedStats] = useState<PosgradoComputedStats>({
+    tasa_sobrepermanencia: 0,
+    tasa_deserciones: 0,
+    tasa_retirados_bra: 0,
+    tasa_graduados_10: 0,
+    tasa_graduados_mas_10: 0,
   });
 
   const fetchData = useCallback(async () => {
@@ -113,10 +117,10 @@ export const Posgrado = () => {
     }
   }, [activeFilter]);
 
-  const fetchFinancingStats = useCallback(async (periodo: string | null) => {
+  const fetchComputedStats = useCallback(async (periodo: string | null) => {
     try {
-      const result = await getPosgradoFinancingStats(periodo ?? undefined, activeFilter as PosgradoProgramType);
-      setFinancingStats(result);
+      const result = await getPosgradoComputedStats(periodo ?? undefined, activeFilter as PosgradoProgramType);
+      setComputedStats(result);
     } catch {
       // Silenciar error
     }
@@ -130,8 +134,8 @@ export const Posgrado = () => {
   useEffect(() => {
     fetchStats(selectedPeriod);
     fetchGenderStats(selectedPeriod);
-    fetchFinancingStats(selectedPeriod);
-  }, [selectedPeriod, fetchStats, fetchGenderStats, fetchFinancingStats]);
+    fetchComputedStats(selectedPeriod);
+  }, [selectedPeriod, fetchStats, fetchGenderStats, fetchComputedStats]);
 
   const handleFilterChange = (filter: ProgramFilter) => {
     setActiveFilter(filter);
@@ -247,9 +251,9 @@ export const Posgrado = () => {
         </div>
       </div>
 
-      {/* Fila 3: Tabla + Financiación */}
+      {/* Fila 3: Tabla + Indicadores Calculados */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-7">
           <PosgradoIndicatorTable
             data={data}
             isLoading={isLoading}
@@ -259,37 +263,58 @@ export const Posgrado = () => {
           />
         </div>
 
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-5">
           <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
-            Financiación
+            Indicadores Calculados
           </h3>
 
           <div className="grid grid-cols-1 gap-4">
             <IndicatorCard
-              value={financingStats.propia}
-              label="FINANCIACIÓN PROPIA"
-              subtitle="Recursos propios"
-              description={selectedPeriod || 'TODOS'}
-              icon={<DollarSign className="h-16 w-16" strokeWidth={1.5} />}
+              value={`${computedStats.tasa_sobrepermanencia.toFixed(1)}%`}
+              label="SOBREPERMANENCIA"
+              subtitle="Estudiantes con >10 semestres"
+              description={selectedPeriod || "TODOS"}
+              icon={<Clock className="h-16 w-16" strokeWidth={1.5} />}
             />
 
             <IndicatorCard
-              value={financingStats.beca}
-              label="FINANCIACIÓN BECA"
-              subtitle="Con beca"
-              description={selectedPeriod || 'TODOS'}
-              icon={<Award className="h-16 w-16" strokeWidth={1.5} />}
+              value={`${computedStats.tasa_deserciones.toFixed(1)}%`}
+              label="DESERCIONES"
+              subtitle="Tasa de deserción"
+              description={selectedPeriod || "TODOS"}
+              icon={<UserX className="h-16 w-16" strokeWidth={1.5} />}
             />
 
             <IndicatorCard
-              value={financingStats.credito}
-              label="FINANCIACIÓN CRÉDITO"
-              subtitle="Con crédito"
-              description={selectedPeriod || 'TODOS'}
-              icon={<CreditCard className="h-16 w-16" strokeWidth={1.5} />}
+              value={`${computedStats.tasa_retirados_bra.toFixed(1)}%`}
+              label="RETIRADOS BRA"
+              subtitle="Tasa de retiro BRA"
+              description={selectedPeriod || "TODOS"}
+              icon={<UserMinus className="h-16 w-16" strokeWidth={1.5} />}
+            />
+
+            <IndicatorCard
+              value={`${computedStats.tasa_graduados_10.toFixed(1)}%`}
+              label="GRADUADOS"
+              subtitle="Graduados"
+              description={selectedPeriod || "TODOS"}
+              icon={<Timer className="h-16 w-16" strokeWidth={1.5} />}
+            />
+
+            <IndicatorCard
+              value={`${computedStats.tasa_graduados_mas_10.toFixed(1)}%`}
+              label="GRADUADOS >10 SEM"
+              subtitle="Graduados en más de 10"
+              description={selectedPeriod || "TODOS"}
+              icon={<Hourglass className="h-16 w-16" strokeWidth={1.5} />}
             />
           </div>
         </div>
+      </div>
+
+      {/* Fila 4: Documentos */}
+      <div className="mt-6">
+        <ProceedingsTable categoryId={2} />
       </div>
     </>
   );

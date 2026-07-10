@@ -1,10 +1,10 @@
 """
-Seed script for student_indicators table - Pregrado 2019-2026
-Generates ~800 realistic records (50 per semester)
+Seed script for student_indicators table - Pregrado 2012-2026
+Generates ~1600 realistic records (50 per semester)
 
 Usage:
-    cd /home/juan/proyect/indicatorUniValle
-    python backend/scripts/seed_student_indicators.py
+    cd /home/juan/indicatorUniValle
+    python3 backend/scripts/seed_student_indicators.py
 """
 
 import random
@@ -17,15 +17,22 @@ import pymysql
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", "3306")),
-    "user": os.getenv("DB_USER", "juan"),
-    "password": os.getenv("DB_PASSWORD", "12345678"),
-    "database": os.getenv("DB_NAME", "indicator"),
+    "user": os.getenv("DB_USER", "appuser"),
+    "password": os.getenv("DB_PASSWORD", "apppassword"),
+    "database": os.getenv("DB_NAME", "indicador_univalle"),
     "charset": "utf8mb4",
 }
 
 # Distribution of states per year (realistic with pandemic effect)
 # [matriculados, graduados, retirados, desertores, reingresados]
 DISTRIBUTION_BY_YEAR = {
+    2012: [28, 7, 4, 3, 3],
+    2013: [29, 7, 5, 3, 3],
+    2014: [30, 8, 5, 4, 3],
+    2015: [31, 8, 5, 4, 3],
+    2016: [32, 8, 4, 3, 3],
+    2017: [33, 9, 4, 3, 3],
+    2018: [34, 9, 4, 3, 3],
     2019: [30, 8, 5, 4, 3],
     2020: [25, 7, 8, 6, 4],  # Pandemic start
     2021: [24, 6, 9, 7, 4],  # Pandemic peak
@@ -123,7 +130,7 @@ def insert_records(conn, records):
 
 def main():
     print("=" * 60)
-    print("  Seed: Student Indicators - Pregrado 2019-2026")
+    print("  Seed: Student Indicators - Pregrado 2012-2026")
     print("=" * 60)
 
     try:
@@ -142,7 +149,7 @@ def main():
 
     total_records = 0
 
-    for year in range(2019, 2027):
+    for year in range(2012, 2027):
         for semester in [1, 2]:
             periodo = f"{year}-{semester}"
             distribution = DISTRIBUTION_BY_YEAR[year]

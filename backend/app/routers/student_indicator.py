@@ -12,6 +12,7 @@ from app.schemas.student_indicator import (
     GenderStatsResponse,
     TrendDataPoint,
     ComputedStatsResponse,
+    CohortSummaryResponse,
 )
 
 router = APIRouter(prefix="/api/v1/student-indicators", tags=["student-indicators"])
@@ -109,6 +110,51 @@ def get_trend_data(
     return results
 
 
+@router.get("/cohort-summary", response_model=list[CohortSummaryResponse])
+def get_cohort_summary(
+    tipo_programa: Optional[str] = Query(None, description="Filtrar por tipo de programa (PREGRADO/POSGRADO/ESPECIALIZACION)"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(StudentIndicator)
+    if tipo_programa is not None:
+        query = query.filter(StudentIndicator.tipo_programa == tipo_programa)
+
+    all_students = query.all()
+
+    periodos_map: dict[str, dict] = {}
+    for s in all_students:
+        p = s.periodo
+        if p not in periodos_map:
+            periodos_map[p] = {
+                "periodo": p,
+                "matriculados": 0,
+                "graduados": 0,
+                "desertores": 0,
+                "retirados_bra": 0,
+                "tesis_en_desarrollo": 0,
+                "tesis_finalizados": 0,
+                "practicas_profesionales": 0,
+            }
+        entry = periodos_map[p]
+        if s.estado == "MATRICULADO":
+            entry["matriculados"] += 1
+        if s.estado == "GRADUADO":
+            entry["graduados"] += 1
+        if s.estado == "DESERTOR":
+            entry["desertores"] += 1
+        if s.estado == "RETIRADO" and s.bra == 1:
+            entry["retirados_bra"] += 1
+        if s.tesis_estado == "EN_PROCESO":
+            entry["tesis_en_desarrollo"] += 1
+        if s.tesis_estado == "APROBADA":
+            entry["tesis_finalizados"] += 1
+        if s.practica_profesional:
+            entry["practicas_profesionales"] += 1
+
+    result = sorted(periodos_map.values(), key=lambda x: x["periodo"], reverse=True)
+    return [CohortSummaryResponse(**item) for item in result]
+
+
 @router.get("", response_model=list[StudentIndicatorResponse])
 def list_student_indicators(
     periodo: Optional[str] = Query(None, description="Filtrar por periodo (ej. 2018-2)"),
@@ -172,13 +218,8 @@ def get_computed_stats(
     )
     tasa_sobrepermanencia = (sobrepermanencia_count / matriculados_count * 100) if matriculados_count > 0 else 0.0
 
-    tesis_aprobadas = [
-        s for s in all_students
-        if s.tesis_estado == "APROBADO" and s.tesis_nota is not None
-    ]
-    suma_notas = sum(float(s.tesis_nota) for s in tesis_aprobadas)
-    total_tesis = len(tesis_aprobadas)
-    promedio_tesis = (suma_notas / total_tesis) if total_tesis > 0 else 0.0
+    desertores = sum(1 for s in all_students if s.estado == "DESERTOR")
+    tasa_deserciones = (desertores / total_registrados * 100) if total_registrados > 0 else 0.0
 
     total_registrados = len(all_students)
     retirados = sum(1 for s in all_students if s.estado == "RETIRADO")
@@ -194,7 +235,7 @@ def get_computed_stats(
 
     return ComputedStatsResponse(
         tasa_sobrepermanencia=round(tasa_sobrepermanencia, 1),
-        promedio_tesis=round(promedio_tesis, 2),
+        tasa_deserciones=round(tasa_deserciones, 1),
         tasa_retirados_bra=round(tasa_retirados_bra, 1),
         tasa_graduados_10=round(tasa_graduados_10, 1),
         tasa_graduados_mas_10=round(tasa_graduados_mas_10, 1),

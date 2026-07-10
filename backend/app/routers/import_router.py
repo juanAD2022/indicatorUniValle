@@ -7,6 +7,7 @@ from app.config import SECRET_KEY, ALGORITHM
 from app.schemas.import_schema import ImportPreviewResponse, ImportConfirmRequest, ImportConfirmResponse
 from app.services.import_service import preview_import, execute_import
 from app.services.posgrado_import_service import preview_posgrado_import, execute_posgrado_import
+from app.services.grupo_inferir_import_service import preview_grupo_inferir_import, execute_grupo_inferir_import
 from app.models.user import User
 
 router = APIRouter(prefix="/api/v1/import", tags=["import"])
@@ -44,8 +45,8 @@ async def import_preview(
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos Excel (.xlsx)")
 
-    if tipo_programa not in ("PREGRADO", "POSGRADO", "ESPECIALIZACION"):
-        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO, POSGRADO o ESPECIALIZACION")
+    if tipo_programa not in ("PREGRADO", "POSGRADO", "ESPECIALIZACION", "GRUPO_INFERIR"):
+        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO, POSGRADO, ESPECIALIZACION o GRUPO_INFERIR")
 
     token = _extract_token(authorization)
     user = _get_current_user(db, token)
@@ -60,6 +61,8 @@ async def import_preview(
     try:
         if tipo_programa == "POSGRADO":
             result = preview_posgrado_import(db, file_obj, file.filename)
+        elif tipo_programa == "GRUPO_INFERIR":
+            result = preview_grupo_inferir_import(db, file_obj, file.filename)
         else:
             result = preview_import(db, file_obj, file.filename, tipo_programa)
     except Exception as e:
@@ -80,6 +83,8 @@ async def import_confirm(
     try:
         if body.tipo_programa == "POSGRADO":
             result = execute_posgrado_import(db, body.rows, user.id, user.username)
+        elif body.tipo_programa == "GRUPO_INFERIR":
+            result = execute_grupo_inferir_import(db, body.rows, user.id, user.username)
         else:
             result = execute_import(db, body.rows, user.id, user.username, body.tipo_programa)
     except Exception as e:

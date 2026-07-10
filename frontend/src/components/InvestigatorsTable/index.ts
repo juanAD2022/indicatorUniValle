@@ -1,0 +1,1 @@
+export { InvestigatorsTable } from './InvestigatorsTable';

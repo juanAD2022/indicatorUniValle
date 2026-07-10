@@ -1,0 +1,1 @@
+export { ConvocationsBarChart } from './ConvocationsBarChart';
