@@ -26,10 +26,8 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
       { label: 'Inicio', path: '/dashboard', icon: <Home className="h-5 w-5" /> },
       { label: 'Pregrado', path: '/pregrado', icon: <GraduationCap className="h-5 w-5" /> },
       { label: 'Posgrado', path: '/posgrado', icon: <BookOpen className="h-5 w-5" /> },
-      { label: 'Extensión', path: '/extension-educacion', icon: <School className="h-5 w-5" /> },
       { label: 'Laboratorio', path: '/laboratorio', icon: <FlaskConical className="h-5 w-5" /> },
       { label: 'Grupo Inferir', path: '/grupo-inferir', icon: <LineChart className="h-5 w-5" /> },
-      { label: 'Gestión Directiva', path: '/gestion-directiva', icon: <Building2 className="h-5 w-5" /> },
     ],
   },
   {
@@ -37,7 +35,6 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
     items: [
       { label: 'Usuarios', path: '/usuarios', icon: <Users className="h-5 w-5" /> },
       { label: 'Carga de Documentos', path: '/carga-documentos', icon: <FileUp className="h-5 w-5" /> },
-      { label: 'Carga de BD para Indicadores', path: '/carga-bd', icon: <Database className="h-5 w-5" /> },
       { label: 'Generar Reportes y Alertas', path: '/reportes', icon: <FileBarChart className="h-5 w-5" /> },
     ],
   },
