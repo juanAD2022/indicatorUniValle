@@ -3,6 +3,5 @@ export {
   getPosgradoIndicatorStats,
   getPosgradoGenderStats,
   getPosgradoTrendData,
-  getPosgradoFinancingStats,
   getPosgradoComputedStats,
 } from './posgradoIndicatorService';

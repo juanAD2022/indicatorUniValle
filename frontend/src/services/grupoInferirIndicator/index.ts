@@ -4,6 +4,5 @@ export {
   getGrupoInferirTrendData,
   getGrupoInferirFinancingStats,
   getGrupoInferirLinesStats,
-  getGrupoInferirInvestigatorsStats,
   getGrupoInferirParticipationStats,
 } from './grupoInferirIndicatorService';

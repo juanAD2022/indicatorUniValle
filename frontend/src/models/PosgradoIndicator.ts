@@ -44,12 +44,6 @@ export interface PosgradoTrendDataPoint {
   desertores: number;
 }
 
-export interface PosgradoFinancingStats {
-  propia: number;
-  beca: number;
-  credito: number;
-}
-
 export interface PosgradoComputedStats {
   tasa_sobrepermanencia: number;
   tasa_deserciones: number;

@@ -74,12 +74,6 @@ export interface GrupoInferirLinesStats {
   control_estadistico: number;
 }
 
-export interface GrupoInferirInvestigatorsStats {
-  junior: number;
-  asociado: number;
-  senior: number;
-}
-
 export interface GrupoInferirParticipationStats {
   pregrado: number;
   especializacion: number;

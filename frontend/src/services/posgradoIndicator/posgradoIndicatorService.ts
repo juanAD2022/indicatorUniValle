@@ -4,7 +4,6 @@ import type {
   PosgradoIndicatorStats,
   PosgradoGenderStats,
   PosgradoTrendDataPoint,
-  PosgradoFinancingStats,
   PosgradoComputedStats,
   PosgradoProgramType,
 } from '@models/PosgradoIndicator';
@@ -52,18 +51,6 @@ export const getPosgradoTrendData = async (
   if (tipoPrograma) params.tipo_programa = tipoPrograma;
 
   const response = await api.get<PosgradoTrendDataPoint[]>('/posgrado-indicators/trend', { params });
-  return response.data;
-};
-
-export const getPosgradoFinancingStats = async (
-  periodo?: string,
-  tipoPrograma?: PosgradoProgramType
-): Promise<PosgradoFinancingStats> => {
-  const params: Record<string, string> = {};
-  if (periodo) params.periodo = periodo;
-  if (tipoPrograma) params.tipo_programa = tipoPrograma;
-
-  const response = await api.get<PosgradoFinancingStats>('/posgrado-indicators/financing-stats', { params });
   return response.data;
 };
 

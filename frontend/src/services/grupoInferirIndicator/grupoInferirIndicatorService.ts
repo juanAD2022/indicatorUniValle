@@ -5,7 +5,6 @@ import type {
   GrupoInferirTrendDataPoint,
   GrupoInferirFinancingStats,
   GrupoInferirLinesStats,
-  GrupoInferirInvestigatorsStats,
   GrupoInferirParticipationStats,
 } from '@models/GrupoInferirIndicator';
 
@@ -51,16 +50,6 @@ export const getGrupoInferirLinesStats = async (
   if (periodo) params.periodo = periodo;
 
   const response = await api.get<GrupoInferirLinesStats>('/grupo-inferir-indicators/lines-stats', { params });
-  return response.data;
-};
-
-export const getGrupoInferirInvestigatorsStats = async (
-  periodo?: string
-): Promise<GrupoInferirInvestigatorsStats> => {
-  const params: Record<string, string> = {};
-  if (periodo) params.periodo = periodo;
-
-  const response = await api.get<GrupoInferirInvestigatorsStats>('/grupo-inferir-indicators/investigators-stats', { params });
   return response.data;
 };
 
