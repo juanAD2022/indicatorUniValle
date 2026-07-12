@@ -13,6 +13,7 @@ import { GrupoInferir } from '@page/GrupoInferir/GrupoInferir.tsx';
 import { ExtensionEducacion } from '@page/ExtensionEducacion/ExtensionEducacion.tsx';
 import { DocumentosCargados } from '@page/DocumentosCargados/DocumentosCargados.tsx';
 import { Reportes } from '@page/Reportes/Reportes.tsx';
+import { Usuarios } from '@page/Usuarios/Usuarios.tsx';
 
 export const AppRouter = () => {
   return (
@@ -31,6 +32,7 @@ export const AppRouter = () => {
           <Route path="/extension-educacion" element={<ExtensionEducacion />} />
           <Route path="/carga-documentos" element={<DocumentosCargados />} />
           <Route path="/reportes" element={<Reportes />} />
+          <Route path="/usuarios" element={<Usuarios />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />

@@ -2,7 +2,7 @@ import os
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,15 @@ from app.schemas.proceedings import ProceedingResponse
 router = APIRouter(prefix="/api/v1/proceedings", tags=["proceedings"])
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+
+
+def _verify_proceeding_ownership(proceeding: Proceeding, current_user: User):
+    """Verify that the current user owns the proceeding."""
+    if proceeding.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para acceder a este documento.",
+        )
 
 
 @router.post("/upload", response_model=ProceedingResponse, status_code=201)
@@ -67,30 +76,40 @@ def upload_proceeding(
 @router.get("", response_model=list[ProceedingResponse])
 def list_proceedings(
     category_id: int = None,
-    user_id: int = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    query = db.query(Proceeding)
+    query = db.query(Proceeding).filter(Proceeding.user_id == current_user.id)
     if category_id is not None:
         query = query.filter(Proceeding.category_id == category_id)
-    if user_id is not None:
-        query = query.filter(Proceeding.user_id == user_id)
     return query.order_by(Proceeding.upload_date.desc()).all()
 
 
 @router.get("/{proceeding_id}", response_model=ProceedingResponse)
-def get_proceeding(proceeding_id: int, db: Session = Depends(get_db)):
+def get_proceeding(
+    proceeding_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     proceeding = db.query(Proceeding).filter(Proceeding.id == proceeding_id).first()
     if not proceeding:
         raise HTTPException(status_code=404, detail="Proceeding not found")
+
+    _verify_proceeding_ownership(proceeding, current_user)
     return proceeding
 
 
 @router.get("/{proceeding_id}/download")
-def download_proceeding(proceeding_id: int, db: Session = Depends(get_db)):
+def download_proceeding(
+    proceeding_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     proceeding = db.query(Proceeding).filter(Proceeding.id == proceeding_id).first()
     if not proceeding:
         raise HTTPException(status_code=404, detail="Proceeding not found")
+
+    _verify_proceeding_ownership(proceeding, current_user)
 
     full_path = PROJECT_ROOT / proceeding.file_path
     if not os.path.exists(full_path):
@@ -104,10 +123,16 @@ def download_proceeding(proceeding_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{proceeding_id}", status_code=204)
-def delete_proceeding(proceeding_id: int, db: Session = Depends(get_db)):
+def delete_proceeding(
+    proceeding_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     proceeding = db.query(Proceeding).filter(Proceeding.id == proceeding_id).first()
     if not proceeding:
         raise HTTPException(status_code=404, detail="Proceeding not found")
+
+    _verify_proceeding_ownership(proceeding, current_user)
 
     full_path = PROJECT_ROOT / proceeding.file_path
     if os.path.exists(full_path):

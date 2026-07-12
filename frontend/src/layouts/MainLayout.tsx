@@ -43,6 +43,33 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
   },
 ];
 
+function getUserRoleFromToken(): string | null {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role || null;
+  } catch {
+    return null;
+  }
+}
+
+function filterSectionsByRole(sections: SidebarSection[]): SidebarSection[] {
+  const role = getUserRoleFromToken();
+  const allowedRoles = ['admin', 'coordinador_lab'];
+  const canManageUsers = role ? allowedRoles.includes(role) : false;
+
+  return sections.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (item.path === '/usuarios') {
+        return canManageUsers;
+      }
+      return true;
+    }),
+  }));
+}
+
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Panel de control',
   '/pregrado': 'Pregrado',
@@ -63,6 +90,8 @@ export const MainLayout = () => {
   const location = useLocation();
   const { token } = useAuth();
   const { selectedPeriod, setSelectedPeriod, availablePeriods } = usePeriod();
+
+  const sidebarSections = filterSectionsByRole(SIDEBAR_SECTIONS);
 
   const pageTitle = PAGE_TITLES[location.pathname] || 'Panel de control';
 
@@ -86,7 +115,7 @@ export const MainLayout = () => {
         }`}
       >
         <Sidebar
-          sections={SIDEBAR_SECTIONS}
+          sections={sidebarSections}
           collapsed={collapsed}
           onToggle={() => setCollapsed(!collapsed)}
         />
@@ -115,7 +144,7 @@ export const MainLayout = () => {
           </button>
         </div>
         <Sidebar
-          sections={SIDEBAR_SECTIONS}
+          sections={sidebarSections}
           onNavigate={() => setMobileOpen(false)}
         />
       </aside>

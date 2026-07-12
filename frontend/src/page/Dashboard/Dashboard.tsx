@@ -11,6 +11,12 @@ import { getDashboardStats } from '@services/dashboard';
 import type { DashboardStats } from '@services/dashboard';
 import { getStudentIndicatorStats, getGenderStats, getTrendData } from '@services/studentIndicator';
 import type { StudentIndicatorStats, GenderStats, TrendDataPoint } from '@services/studentIndicator';
+import {
+  getPosgradoIndicatorStats,
+  getPosgradoGenderStats,
+  getPosgradoTrendData,
+} from '@services/posgradoIndicator';
+
 import { usePeriod } from '@context/usePeriod';
 import {
   Users,
@@ -74,14 +80,36 @@ export const Dashboard = () => {
   const fetchProgramData = useCallback(async (filter: ProgramFilter) => {
     try {
       const tipoPrograma = filter === 'TODOS' ? undefined : filter;
-      const [s, g, t] = await Promise.all([
-        getStudentIndicatorStats(selectedPeriod ?? undefined, tipoPrograma),
-        getGenderStats(selectedPeriod ?? undefined, tipoPrograma),
-        getTrendData(tipoPrograma),
-      ]);
-      setStatsByType(s);
-      setGenderStats(g);
-      setTrendData(t);
+
+      if (filter === 'ESPECIALIZACION' || filter === 'MAESTRIA') {
+        // Usar servicio de posgrado para ESPECIALIZACION y MAESTRIA
+        const [s, g, t] = await Promise.all([
+          getPosgradoIndicatorStats(selectedPeriod ?? undefined, tipoPrograma as 'ESPECIALIZACION' | 'MAESTRIA'),
+          getPosgradoGenderStats(selectedPeriod ?? undefined, tipoPrograma as 'ESPECIALIZACION' | 'MAESTRIA'),
+          getPosgradoTrendData(tipoPrograma as 'ESPECIALIZACION' | 'MAESTRIA'),
+        ]);
+        // Mapear PosgradoIndicatorStats a StudentIndicatorStats
+        setStatsByType({
+          matriculados: s.matriculados,
+          graduados: s.graduados,
+          reingresados: 0,
+          por_amnistia: 0,
+          retirados: 0,
+          desertores: s.desertores,
+        });
+        setGenderStats(g);
+        setTrendData(t as TrendDataPoint[]);
+      } else {
+        // Usar servicio de pregrado para TODOS y PREGRADO
+        const [s, g, t] = await Promise.all([
+          getStudentIndicatorStats(selectedPeriod ?? undefined, tipoPrograma),
+          getGenderStats(selectedPeriod ?? undefined, tipoPrograma),
+          getTrendData(tipoPrograma),
+        ]);
+        setStatsByType(s);
+        setGenderStats(g);
+        setTrendData(t);
+      }
     } catch {
       // Silenciar error
     }

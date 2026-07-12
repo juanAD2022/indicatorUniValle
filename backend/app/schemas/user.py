@@ -33,3 +33,13 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+
+
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+
+
+class UserListResponse(BaseModel):
+    users: list[UserResponse]
+    total: int

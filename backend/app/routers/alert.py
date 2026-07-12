@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
@@ -9,6 +9,15 @@ from app.models.user import User
 from app.schemas.alert import AlertResponse, AlertCreate, AlertUpdate
 
 router = APIRouter(prefix="/api/v1/alerts", tags=["alerts"])
+
+
+def _verify_alert_ownership(alert: Alert, current_user: User):
+    """Verify that the current user owns the alert."""
+    if alert.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para acceder a esta alerta.",
+        )
 
 
 @router.post("", response_model=AlertResponse, status_code=201)
@@ -37,8 +46,9 @@ def list_alerts(
     estado: str = Query(None),
     search: str = Query(None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    query = db.query(Alert)
+    query = db.query(Alert).filter(Alert.user_id == current_user.id)
 
     if tipo:
         query = query.filter(Alert.tipo == tipo)
@@ -57,10 +67,16 @@ def list_alerts(
 
 
 @router.get("/{alert_id}", response_model=AlertResponse)
-def get_alert(alert_id: int, db: Session = Depends(get_db)):
+def get_alert(
+    alert_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
+
+    _verify_alert_ownership(alert, current_user)
     return alert
 
 
@@ -74,6 +90,8 @@ def update_alert(
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
+
+    _verify_alert_ownership(alert, current_user)
 
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -93,6 +111,8 @@ def delete_alert(
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
+
+    _verify_alert_ownership(alert, current_user)
 
     db.delete(alert)
     db.commit()
