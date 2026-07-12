@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts';
 import type { GenderPieChartProps } from './GenderPieChart.types';
 
 const COLORS = {
@@ -6,29 +6,28 @@ const COLORS = {
   Mujeres: '#CC1C1C',
 };
 
-interface PieLabelProps {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  percent: number;
-  name: string;
-  value: number;
-}
-
 const RADIAN = Math.PI / 180;
 
-const renderCustomLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  percent,
-  name,
-  value,
-}: PieLabelProps) => {
+const renderCustomLabel = (props: PieLabelRenderProps) => {
+  const {
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    name,
+    value,
+  } = props as {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+    name: string;
+    value: number;
+  };
   const sin = Math.sin(-RADIAN * midAngle);
   const cos = Math.cos(-RADIAN * midAngle);
 
@@ -110,8 +109,11 @@ export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieCh
             ))}
           </Pie>
           <Tooltip
-            formatter={(value: number, name: string) => [
-              `${value} (${total > 0 ? ((value / total) * 100).toFixed(1) : 0}%)`,
+            formatter={(
+              value: any,
+              name: any
+            ) => [
+              `${value} (${total > 0 ? ((Number(value) / total) * 100).toFixed(1) : 0}%)`,
               name,
             ]}
           />

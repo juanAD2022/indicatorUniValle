@@ -13,9 +13,9 @@ import {
 import type {
   BaseLaboratorio,
   BaseLaboratorioStats,
-  BaseLaboratorioTrendDataPoint,
   BaseLaboratorioUserDistribution,
 } from '@models/BaseLaboratorio';
+import type { TrendDataPoint } from '@services/studentIndicator';
 import { usePeriod } from '@context/usePeriod';
 import {
   Users,
@@ -49,7 +49,7 @@ export const Laboratorio = () => {
     promedio_horas_uso: 0,
   });
 
-  const [trendData, setTrendData] = useState<BaseLaboratorioTrendDataPoint[]>([]);
+  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
 
   const [userDistribution, setUserDistribution] = useState<BaseLaboratorioUserDistribution>({
     estudiantes: 0,
@@ -84,13 +84,13 @@ export const Laboratorio = () => {
     try {
       const result = await getBaseLaboratorioTrendData();
       // Adaptar datos para TrendLineChart (que espera matriculados, graduados, desertores)
-      const adapted = result.map((d) => ({
+      const adapted: TrendDataPoint[] = result.map((d) => ({
         periodo: d.periodo,
         matriculados: d.servicios_solicitados,
         graduados: d.servicios_atendidos,
         desertores: 0,
       }));
-      setTrendData(adapted as BaseLaboratorioTrendDataPoint[]);
+      setTrendData(adapted);
     } catch {
       // Silenciar error
     }

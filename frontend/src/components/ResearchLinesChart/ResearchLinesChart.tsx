@@ -81,9 +81,11 @@ export const ResearchLinesChart = ({
               position="right"
               fontSize={12}
               fill="#333"
-              formatter={(value: number, _entry: unknown, index: number) => {
-                const pct = dataWithPercent[index]?.percent ?? 0;
-                return `${value} (${(pct * 100).toFixed(1)}%)`;
+              formatter={(value: any) => {
+                const num = Number(value);
+                const idx = dataWithPercent.findIndex((d) => d.value === num);
+                const pct = idx >= 0 ? dataWithPercent[idx].percent : 0;
+                return `${num} (${(pct * 100).toFixed(1)}%)`;
               }}
             />
           </Bar>

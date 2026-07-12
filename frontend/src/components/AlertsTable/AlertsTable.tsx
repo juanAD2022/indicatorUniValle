@@ -8,7 +8,6 @@ import {
   Plus,
   Trash2,
   Bell,
-  Calendar,
   Filter,
   Pencil,
   ToggleLeft,
