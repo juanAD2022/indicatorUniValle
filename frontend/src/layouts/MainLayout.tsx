@@ -8,13 +8,10 @@ import {
   Home,
   GraduationCap,
   BookOpen,
-  School,
   FlaskConical,
   LineChart,
-  Building2,
   Users,
   FileUp,
-  Database,
   FileBarChart,
 } from 'lucide-react';
 import type { SidebarSection } from '@components/Sidebar';
