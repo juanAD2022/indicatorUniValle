@@ -14,6 +14,7 @@ import { ExtensionEducacion } from '@page/ExtensionEducacion/ExtensionEducacion.
 import { DocumentosCargados } from '@page/DocumentosCargados/DocumentosCargados.tsx';
 import { Reportes } from '@page/Reportes/Reportes.tsx';
 import { Usuarios } from '@page/Usuarios/Usuarios.tsx';
+import { Profesores } from '@page/Profesores/Profesores.tsx';
 
 export const AppRouter = () => {
   return (
@@ -33,6 +34,7 @@ export const AppRouter = () => {
           <Route path="/carga-documentos" element={<DocumentosCargados />} />
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/profesores" element={<Profesores />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />

@@ -1,0 +1,1 @@
+export { ProfesorHoursChart } from './ProfesorHoursChart';

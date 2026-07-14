@@ -15,6 +15,7 @@ import {
   FileBarChart,
   Shield,
   Globe,
+  UserCheck,
 } from 'lucide-react';
 import type { SidebarSection } from '@components/Sidebar';
 
@@ -29,6 +30,7 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
       { label: 'Laboratorio', path: '/laboratorio', icon: <FlaskConical className="h-5 w-5" /> },
       { label: 'Grupo Inferir', path: '/grupo-inferir', icon: <LineChart className="h-5 w-5" /> },
       { label: 'Gestión Directiva', path: '/gestion-directiva', icon: <Shield className="h-5 w-5" /> },
+      { label: 'Profesores', path: '/profesores', icon: <UserCheck className="h-5 w-5" /> },
     ],
   },
   {
@@ -80,6 +82,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/carga-documentos': 'Carga de Documentos',
   '/carga-bd': 'Carga de Base de Datos',
   '/reportes': 'Reportes y Alertas',
+  '/profesores': 'Profesores',
 };
 
 export const MainLayout = () => {

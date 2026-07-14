@@ -11,6 +11,7 @@ from app.services.grupo_inferir_import_service import preview_grupo_inferir_impo
 from app.services.base_laboratorio_import_service import preview_base_laboratorio_import, execute_base_laboratorio_import
 from app.services.gestion_directiva_import_service import preview_gestion_directiva_import, execute_gestion_directiva_import
 from app.services.extension_social_import_service import preview_extension_social_import, execute_extension_social_import
+from app.services.profesor_import_service import preview_profesor_import, execute_profesor_import
 from app.models.user import User
 
 router = APIRouter(prefix="/api/v1/import", tags=["import"])
@@ -48,8 +49,8 @@ async def import_preview(
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos Excel (.xlsx)")
 
-    if tipo_programa not in ("PREGRADO", "POSGRADO", "ESPECIALIZACION", "GRUPO_INFERIR", "BASE_LABORATORIO", "GESTION_DIRECTIVA", "EXTENSION_SOCIAL"):
-        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO, POSGRADO, ESPECIALIZACION, GRUPO_INFERIR, BASE_LABORATORIO, GESTION_DIRECTIVA o EXTENSION_SOCIAL")
+    if tipo_programa not in ("PREGRADO", "POSGRADO", "ESPECIALIZACION", "GRUPO_INFERIR", "BASE_LABORATORIO", "GESTION_DIRECTIVA", "EXTENSION_SOCIAL", "PROFESOR"):
+        raise HTTPException(status_code=400, detail="tipo_programa debe ser PREGRADO, POSGRADO, ESPECIALIZACION, GRUPO_INFERIR, BASE_LABORATORIO, GESTION_DIRECTIVA, EXTENSION_SOCIAL o PROFESOR")
 
     token = _extract_token(authorization)
     user = _get_current_user(db, token)
@@ -72,6 +73,8 @@ async def import_preview(
             result = preview_gestion_directiva_import(db, file_obj, file.filename)
         elif tipo_programa == "EXTENSION_SOCIAL":
             result = preview_extension_social_import(db, file_obj, file.filename)
+        elif tipo_programa == "PROFESOR":
+            result = preview_profesor_import(db, file_obj, file.filename)
         else:
             result = preview_import(db, file_obj, file.filename, tipo_programa)
     except Exception as e:
@@ -100,6 +103,8 @@ async def import_confirm(
             result = execute_gestion_directiva_import(db, body.rows, user.id, user.username)
         elif body.tipo_programa == "EXTENSION_SOCIAL":
             result = execute_extension_social_import(db, body.rows, user.id, user.username)
+        elif body.tipo_programa == "PROFESOR":
+            result = execute_profesor_import(db, body.rows, user.id, user.username)
         else:
             result = execute_import(db, body.rows, user.id, user.username, body.tipo_programa)
     except Exception as e:

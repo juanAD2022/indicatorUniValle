@@ -1,0 +1,1 @@
+export { ProfesorVariationChart } from './ProfesorVariationChart';

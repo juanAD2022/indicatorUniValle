@@ -1,0 +1,1 @@
+export { ProfesorTable } from './ProfesorTable';
