@@ -36,14 +36,17 @@ export const VinculacionPieChart = ({ data }: VinculacionPieChartProps) => {
             innerRadius={40}
             outerRadius={80}
             dataKey="value"
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+            label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(1)}%`}
             labelLine={false}
           >
-            {data.map((_, index) => (
+            {data.map((_entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value: number) => [`${value} (${((value / total) * 100).toFixed(1)}%)`, '']} />
+          <Tooltip formatter={(value: unknown) => {
+            const num = Number(value);
+            return [`${num} (${((num / total) * 100).toFixed(1)}%)`, ''];
+          }} />
         </PieChart>
       </ResponsiveContainer>
       <div className="flex flex-wrap justify-center gap-3 mt-2">

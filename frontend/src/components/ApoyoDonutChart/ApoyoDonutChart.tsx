@@ -50,9 +50,10 @@ export const ApoyoDonutChart = ({ data }: ApoyoDonutChartProps) => {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number, name: string) => {
-                  const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-                  return [`$${value.toLocaleString()} (${pct}%)`, name];
+                formatter={(value: unknown, name: unknown) => {
+                  const numValue = Number(value);
+                  const pct = total > 0 ? ((numValue / total) * 100).toFixed(1) : '0';
+                  return [`$${numValue.toLocaleString()} (${pct}%)`, String(name)];
                 }}
               />
             </PieChart>

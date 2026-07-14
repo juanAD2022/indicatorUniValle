@@ -14,6 +14,7 @@ import {
   FileUp,
   FileBarChart,
   Shield,
+  Globe,
 } from 'lucide-react';
 import type { SidebarSection } from '@components/Sidebar';
 
@@ -24,6 +25,7 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
       { label: 'Inicio', path: '/dashboard', icon: <Home className="h-5 w-5" /> },
       { label: 'Pregrado', path: '/pregrado', icon: <GraduationCap className="h-5 w-5" /> },
       { label: 'Posgrado', path: '/posgrado', icon: <BookOpen className="h-5 w-5" /> },
+      { label: 'Extensión Social', path: '/extension-educacion', icon: <Globe className="h-5 w-5" /> },
       { label: 'Laboratorio', path: '/laboratorio', icon: <FlaskConical className="h-5 w-5" /> },
       { label: 'Grupo Inferir', path: '/grupo-inferir', icon: <LineChart className="h-5 w-5" /> },
       { label: 'Gestión Directiva', path: '/gestion-directiva', icon: <Shield className="h-5 w-5" /> },
@@ -70,7 +72,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Panel de control',
   '/pregrado': 'Pregrado',
   '/posgrado': 'Posgrado',
-  '/extension-educacion': 'Extensión/Educación',
+  '/extension-educacion': 'Extensión Social',
   '/laboratorio': 'Laboratorio',
   '/grupo-inferir': 'Grupo Inferir',
   '/gestion-directiva': 'Gestión Directiva',

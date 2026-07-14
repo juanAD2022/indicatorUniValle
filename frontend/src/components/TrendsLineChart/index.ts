@@ -1,0 +1,1 @@
+export { TrendsLineChart } from './TrendsLineChart';

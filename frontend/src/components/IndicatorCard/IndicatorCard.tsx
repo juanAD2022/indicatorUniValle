@@ -15,7 +15,7 @@ export const IndicatorCard = ({
 
   return (
     <div
-      className={`rounded-2xl p-5 flex items-center gap-3 shadow-sm ${className}`}
+      className={`rounded-2xl p-5 flex items-center gap-3 shadow-sm relative ${className}`}
       style={{ backgroundColor: bgColor }}
     >
       <div className={`font-bold text-white leading-tight ${isTextValue ? 'text-3xl break-words max-w-[120px]' : 'text-5xl'}`}>
