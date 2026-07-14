@@ -13,6 +13,7 @@ import {
   Users,
   FileUp,
   FileBarChart,
+  Shield,
 } from 'lucide-react';
 import type { SidebarSection } from '@components/Sidebar';
 
@@ -25,6 +26,7 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
       { label: 'Posgrado', path: '/posgrado', icon: <BookOpen className="h-5 w-5" /> },
       { label: 'Laboratorio', path: '/laboratorio', icon: <FlaskConical className="h-5 w-5" /> },
       { label: 'Grupo Inferir', path: '/grupo-inferir', icon: <LineChart className="h-5 w-5" /> },
+      { label: 'Gestión Directiva', path: '/gestion-directiva', icon: <Shield className="h-5 w-5" /> },
     ],
   },
   {
