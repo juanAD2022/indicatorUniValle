@@ -15,7 +15,6 @@ import type {
   BaseLaboratorioStats,
   BaseLaboratorioUserDistribution,
 } from '@models/BaseLaboratorio';
-import type { TrendDataPoint } from '@services/studentIndicator';
 import { usePeriod } from '@context/usePeriod';
 import {
   Users,
@@ -49,7 +48,7 @@ export const Laboratorio = () => {
     promedio_horas_uso: 0,
   });
 
-  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
+  const [trendData, setTrendData] = useState<Array<Record<string, any>>>([]);
 
   const [userDistribution, setUserDistribution] = useState<BaseLaboratorioUserDistribution>({
     estudiantes: 0,
@@ -83,14 +82,7 @@ export const Laboratorio = () => {
   const fetchTrendData = useCallback(async () => {
     try {
       const result = await getBaseLaboratorioTrendData();
-      // Adaptar datos para TrendLineChart (que espera matriculados, graduados, desertores)
-      const adapted: TrendDataPoint[] = result.map((d) => ({
-        periodo: d.periodo,
-        matriculados: d.servicios_solicitados,
-        graduados: d.servicios_atendidos,
-        desertores: 0,
-      }));
-      setTrendData(adapted);
+      setTrendData(result);
     } catch {
       // Silenciar error
     }
@@ -194,67 +186,35 @@ export const Laboratorio = () => {
       {/* Fila 2: Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
         <div className="lg:col-span-5">
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
-              Cumplimiento mensual de servicios
-            </h3>
-            {trendData.length === 0 ? (
-              <div className="flex items-center justify-center h-64 text-gray-500">
-                No hay datos de tendencia disponibles.
-              </div>
-            ) : (
-              <TrendLineChart data={trendData} />
-            )}
-          </div>
+          <TrendLineChart
+            data={trendData}
+            series={[
+              { key: 'servicios_solicitados', name: 'Solicitados', color: '#CC1C1C' },
+              { key: 'servicios_atendidos', name: 'Atendidos', color: '#1565C0' },
+            ]}
+            title="Cumplimiento mensual de servicios"
+          />
         </div>
 
         <div className="lg:col-span-4">
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
-              Distribución de usuarios ({selectedPeriod || 'Todos'})
-            </h3>
-            <GenderPieChart
-              hombres={userDistribution.estudiantes}
-              mujeres={userDistribution.profesores + userDistribution.externos}
-            />
-            <div className="flex flex-wrap justify-center gap-4 mt-4">
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-[#CC1C1C]" />
-                <span className="text-xs text-gray-700">Estudiantes ({userDistribution.estudiantes})</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-[#1565C0]" />
-                <span className="text-xs text-gray-700">Profesores ({userDistribution.profesores})</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-[#4CAF50]" />
-                <span className="text-xs text-gray-700">Externos ({userDistribution.externos})</span>
-              </div>
-            </div>
-          </div>
+          <GenderPieChart
+            data={[
+              { name: 'Estudiantes', value: userDistribution.estudiantes, color: '#1565C0' },
+              { name: 'Profesores', value: userDistribution.profesores, color: '#CC1C1C' },
+              { name: 'Externos', value: userDistribution.externos, color: '#4CAF50' },
+            ]}
+            title={`Distribución de usuarios (${selectedPeriod || 'Todos'})`}
+          />
         </div>
 
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">
-              Servicios solicitados vs. atendidos
-            </h3>
-            <StatusBarChart
-              matriculados={stats.servicios_solicitados}
-              graduados={stats.servicios_atendidos}
-              desertores={0}
-            />
-            <div className="flex flex-wrap justify-center gap-4 mt-4">
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-[#CC1C1C]" />
-                <span className="text-xs text-gray-700">Solicitados</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-[#1565C0]" />
-                <span className="text-xs text-gray-700">Atendidos</span>
-              </div>
-            </div>
-          </div>
+          <StatusBarChart
+            data={[
+              { label: 'Solicitados', value: stats.servicios_solicitados, color: '#CC1C1C' },
+              { label: 'Atendidos', value: stats.servicios_atendidos, color: '#1565C0' },
+            ]}
+            title="Servicios solicitados vs. atendidos"
+          />
         </div>
       </div>
 

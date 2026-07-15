@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { IndicatorCard } from '@components/IndicatorCard';
-import { TrendLineChart } from '@components/TrendLineChart';
+import { PonenciasTrendChart } from '@components/PonenciasTrendChart';
 import { ProjectsPieChart } from '@components/ProjectsPieChart';
 import { ConvocationsBarChart } from '@components/ConvocationsBarChart';
 import { ResearchLinesChart } from '@components/ResearchLinesChart';
@@ -213,37 +213,7 @@ export const GrupoInferir = () => {
       {/* Fila 2: Tendencia ponencias + Proyectos por estado */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
         <div className="lg:col-span-7">
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Tendencia de ponencias</h3>
-            {trendData.length === 0 ? (
-              <div className="flex items-center justify-center h-64 text-gray-500">
-                No hay datos de tendencia disponibles.
-              </div>
-            ) : (
-              <>
-                {/* Legend */}
-                <div className="flex flex-wrap justify-center gap-4 mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#CC1C1C]" />
-                    <span className="text-xs text-gray-700">Nacionales</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#4CAF50]" />
-                    <span className="text-xs text-gray-700">Internacionales</span>
-                  </div>
-                </div>
-                {/* Reuse TrendLineChart with custom data mapping */}
-                <TrendLineChart
-                  data={trendData.map((d) => ({
-                    periodo: d.periodo,
-                    matriculados: d.profesores_vinculados,
-                    graduados: d.jovenes_investigadores,
-                    desertores: d.proyectos_desarrollo,
-                  }))}
-                />
-              </>
-            )}
-          </div>
+          <PonenciasTrendChart data={trendData} />
         </div>
 
         <div className="lg:col-span-5">

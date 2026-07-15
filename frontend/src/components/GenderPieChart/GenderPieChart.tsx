@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts';
-import type { GenderPieChartProps } from './GenderPieChart.types';
+import type { GenderPieChartProps, PieDataItem } from './GenderPieChart.types';
 
-const COLORS = {
+const DEFAULT_COLORS = {
   Hombres: '#1565C0',
   Mujeres: '#CC1C1C',
 };
@@ -68,18 +68,25 @@ const renderCustomLabel = (props: PieLabelRenderProps) => {
   );
 };
 
-export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieChartProps) => {
-  const total = hombres + mujeres;
-
-  const data = [
-    { name: 'Hombres', value: hombres },
-    { name: 'Mujeres', value: mujeres },
+export const GenderPieChart = ({
+  data,
+  hombres,
+  mujeres,
+  title = 'Distribución por Género',
+  showLegend = true,
+  className = '',
+}: GenderPieChartProps) => {
+  const chartData: PieDataItem[] = data ?? [
+    { name: 'Hombres', value: hombres ?? 0, color: DEFAULT_COLORS.Hombres },
+    { name: 'Mujeres', value: mujeres ?? 0, color: DEFAULT_COLORS.Mujeres },
   ];
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   if (total === 0) {
     return (
       <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
-        <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Distribución por Género</h3>
+        <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">{title}</h3>
         <div className="flex items-center justify-center h-64 text-gray-500">
           No hay datos para el periodo seleccionado.
         </div>
@@ -89,11 +96,11 @@ export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieCh
 
   return (
     <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
-      <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Distribución por Género</h3>
+      <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
-            data={data}
+            data={chartData}
             cx="40%"
             cy="50%"
             outerRadius={80}
@@ -101,10 +108,10 @@ export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieCh
             label={renderCustomLabel}
             labelLine={false}
           >
-            {data.map((entry) => (
+            {chartData.map((entry) => (
               <Cell
                 key={entry.name}
-                fill={COLORS[entry.name as keyof typeof COLORS]}
+                fill={entry.color}
               />
             ))}
           </Pie>
@@ -119,6 +126,21 @@ export const GenderPieChart = ({ hombres, mujeres, className = '' }: GenderPieCh
           />
         </PieChart>
       </ResponsiveContainer>
+      {showLegend && (
+        <div className="flex flex-wrap justify-center gap-4 mt-4">
+          {chartData.map((item) => (
+            <div key={item.name} className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-3 h-3 rounded-sm"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-xs text-gray-700">
+                {item.name} ({item.value})
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

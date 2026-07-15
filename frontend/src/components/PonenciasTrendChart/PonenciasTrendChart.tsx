@@ -4,16 +4,15 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import type { TrendLineChartProps, TrendSeries } from './TrendLineChart.types';
+import type { PonenciasTrendChartProps } from './PonenciasTrendChart.types';
 
-const DEFAULT_SERIES: TrendSeries[] = [
-  { key: 'matriculados', name: 'Matriculados', color: '#CC1C1C' },
-  { key: 'graduados', name: 'Graduados', color: '#1565C0' },
-  { key: 'desertores', name: 'Desertores', color: '#4CAF50' },
+const SERIES_CONFIG = [
+  { key: 'profesores_vinculados', name: 'Profesores vinculados', color: '#CC1C1C' },
+  { key: 'jovenes_investigadores', name: 'Jóvenes investigadores', color: '#1565C0' },
+  { key: 'proyectos_desarrollo', name: 'Proyectos en desarrollo', color: '#4CAF50' },
 ];
 
 const CustomTooltip = ({
@@ -38,33 +37,11 @@ const CustomTooltip = ({
   );
 };
 
-const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: string }> }) => {
-  if (!payload) return null;
-  return (
-    <div className="flex flex-wrap justify-center gap-4 mt-2">
-      {payload.map((item) => (
-        <div key={item.value} className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-          <span className="text-xs text-gray-700">{item.value}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-export const TrendLineChart = ({
-  data,
-  series,
-  xAxisKey = 'periodo',
-  title = 'Tendencia por Periodo',
-  className = '',
-}: TrendLineChartProps) => {
-  const activeSeries = series ?? DEFAULT_SERIES;
-
+export const PonenciasTrendChart = ({ data, className = '' }: PonenciasTrendChartProps) => {
   if (data.length === 0) {
     return (
       <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
-        <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">{title}</h3>
+        <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Tendencia de ponencias</h3>
         <div className="flex items-center justify-center h-64 text-gray-500">
           No hay datos de tendencia disponibles.
         </div>
@@ -74,15 +51,22 @@ export const TrendLineChart = ({
 
   return (
     <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
-      <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">{title}</h3>
+      <h3 className="text-lg font-bold text-[#CC1C1C] mb-4">Tendencia de ponencias</h3>
+      <div className="flex flex-wrap justify-center gap-4 mb-4">
+        {SERIES_CONFIG.map((s) => (
+          <div key={s.key} className="flex items-center gap-1.5">
+            <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
+            <span className="text-xs text-gray-700">{s.name}</span>
+          </div>
+        ))}
+      </div>
       <ResponsiveContainer width="100%" height={350}>
         <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-          <XAxis dataKey={xAxisKey} fontSize={12} tickLine={false} />
+          <XAxis dataKey="periodo" fontSize={12} tickLine={false} />
           <YAxis fontSize={12} />
           <Tooltip content={<CustomTooltip />} />
-          <Legend content={<CustomLegend />} />
-          {activeSeries.map((s) => (
+          {SERIES_CONFIG.map((s) => (
             <Line
               key={s.key}
               type="monotone"

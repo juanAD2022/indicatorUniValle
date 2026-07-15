@@ -1,19 +1,31 @@
-import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Upload } from 'lucide-react';
 import type { StudentIndicatorTableProps, SortField, SortDirection } from './StudentIndicatorTable.types';
 import type { CohortSummary } from '@models/StudentIndicator';
+import { uploadPreview, confirmImport } from '@services/studentIndicator/importService';
+import type { ImportPreview } from '@services/studentIndicator/importService';
+import { ImportPreviewModal } from '@components/ImportPreviewModal';
 
 const ITEMS_PER_PAGE = 11;
 
 export const StudentIndicatorTable = ({
   data,
   isLoading,
+  tipo_programa,
+  onImportComplete,
   selectedPeriod,
 }: StudentIndicatorTableProps) => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>('periodo');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const [isImporting, setIsImporting] = useState(false);
+  const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredData = useMemo(() => {
     let result = data;
@@ -60,6 +72,53 @@ export const StudentIndicatorTable = ({
     setCurrentPage(1);
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setImportSuccess(null);
+
+    try {
+      const preview = await uploadPreview(file, tipo_programa);
+      setImportPreview(preview);
+      setShowModal(true);
+    } catch {
+      alert('Error al procesar el archivo. Verifique que el formato sea correcto.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importPreview) return;
+
+    setIsImporting(true);
+    try {
+      const result = await confirmImport(importPreview.pending_rows, tipo_programa);
+      setShowModal(false);
+      setImportPreview(null);
+      setImportSuccess(result.message);
+      onImportComplete?.();
+    } catch {
+      alert('Error al ejecutar la importación.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleCancelImport = () => {
+    setShowModal(false);
+    setImportPreview(null);
+  };
+
   const sortIcon = (field: SortField) => {
     if (sortField !== field) return null;
     return sortDirection === 'asc' ? ' ▲' : ' ▼';
@@ -77,6 +136,22 @@ export const StudentIndicatorTable = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx,.xls"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
+      <ImportPreviewModal
+        isOpen={showModal}
+        preview={importPreview}
+        isLoading={isImporting}
+        onConfirm={handleConfirmImport}
+        onCancel={handleCancelImport}
+      />
+
       {/* Filters Bar */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex flex-wrap items-center gap-3">
@@ -95,6 +170,15 @@ export const StudentIndicatorTable = ({
             />
           </div>
 
+          <button
+            onClick={handleImportClick}
+            disabled={isUploading}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#1565C0] hover:bg-[#0d47a1] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Upload className="h-4 w-4" />
+            {isUploading ? 'Subiendo...' : 'Importar Excel'}
+          </button>
+
           {/* Clear filters */}
           <button
             onClick={clearFilters}
@@ -104,6 +188,12 @@ export const StudentIndicatorTable = ({
           </button>
         </div>
       </div>
+
+      {importSuccess && (
+        <div className="px-4 py-3 bg-green-50 border-b border-green-200 text-green-700 text-sm">
+          {importSuccess}
+        </div>
+      )}
 
       {/* Table */}
       <div className="overflow-x-auto">

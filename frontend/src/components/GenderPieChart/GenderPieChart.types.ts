@@ -1,5 +1,14 @@
+export interface PieDataItem {
+  name: string;
+  value: number;
+  color: string;
+}
+
 export interface GenderPieChartProps {
-  hombres: number;
-  mujeres: number;
+  data?: PieDataItem[];
+  hombres?: number;
+  mujeres?: number;
+  title?: string;
+  showLegend?: boolean;
   className?: string;
 }
